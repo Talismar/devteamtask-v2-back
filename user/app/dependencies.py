@@ -7,5 +7,4 @@ def get_db_connection():
     try:
         yield db
     finally:
-        print("DB disconnect")
         db.close()

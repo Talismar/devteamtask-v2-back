@@ -8,8 +8,16 @@ class SqlalchemyUserRepository(UserRepository[Session]):
     def list_all(self):
         return self._db.query(UserModel).all()
 
-    def create(self, user: UserPostRequestSchema):
-        db_user = UserModel(**user.model_dump())
+    def create(
+        self,
+        user_schema_or_dict: UserPostRequestSchema,
+        auth_provider: str | None = None,
+    ):
+        if auth_provider is None:
+            db_user = UserModel(**user_schema_or_dict.model_dump())
+        else:
+            user_dict = UserPostRequestSchema(**user_schema_or_dict)
+            db_user = UserModel(**user_dict, auth_provider=auth_provider)
 
         self._db.add(db_user)
         self._db.commit()

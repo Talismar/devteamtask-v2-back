@@ -18,7 +18,7 @@ router.add_api_route(
     project_controller.create,
     methods=["POST"],
     status_code=201,
-    # response_model=ProjectListResponseSchema,
+    response_model=ProjectResponseSchema,
     dependencies=[Depends(current_user_dependency)],
 )
 router.add_api_route(
@@ -39,6 +39,9 @@ router.add_api_route(
     methods=["GET"],
     response_model=ProjectSchema,
     dependencies=[Depends(current_user_dependency)],
+)
+router.add_api_route(
+    "/{id}", project_controller.remove, methods=["DELETE"], status_code=204
 )
 router.add_api_route(
     "/remove_tag_status/{id}",

@@ -23,6 +23,10 @@ class ProjectRepository(ABC):
         pass
 
     @abstractmethod
+    def delete(self, id: UUID):
+        pass
+
+    @abstractmethod
     def add_tag(self, project_id: UUID, tag_instance):
         pass
 

@@ -1,9 +1,11 @@
 from datetime import datetime
+from enum import Enum
 from typing import Annotated
 from uuid import UUID
 
 from app.application.use_cases import (
     ProjectCreateUseCase,
+    ProjectDeleteUseCase,
     ProjectGetAllUseCase,
     ProjectGetByIdUseCase,
     ProjectPartialUpdateUseCase,
@@ -12,11 +14,13 @@ from app.application.use_cases import (
 from app.domain.errors import ResourceNotFoundException
 from app.infra.factories import (
     make_project_create,
+    make_project_delete,
     make_project_get_all,
     make_project_get_by_id,
     make_project_partial_update,
     make_project_remove_tag_status,
 )
+from app.infra.http.dependencies.get_user_id_dependency import get_user_id_dependency
 from app.infra.schemas.project import (
     ProjectPartialUpdateParams,
     ProjectPostRequestSchema,
@@ -25,14 +29,19 @@ from fastapi import Depends, HTTPException, Path, Query, Request
 from starlette.datastructures import UploadFile
 
 
+class ResourceNameEnum(str, Enum):
+    Tag = "Tag"
+    Status = "Status"
+
+
 def create(
-    request: Request,
+    user_id: Annotated[int, Depends(get_user_id_dependency)],
     data: ProjectPostRequestSchema,
     use_case: ProjectCreateUseCase = Depends(make_project_create),
 ):
     return use_case.execute(
         {
-            "leader_id": request.scope["user"]["id"],
+            "leader_id": user_id,
             **data.model_dump(exclude_unset=True),
         }
     )
@@ -52,6 +61,13 @@ def get_by_id(
 ):
     try:
         return use_case.execute(id)
+    except ResourceNotFoundException as error:
+        raise HTTPException(status_code=404, detail=error.message)
+
+
+def remove(id: UUID, use_case: ProjectDeleteUseCase = Depends(make_project_delete)):
+    try:
+        use_case.execute(id)
     except ResourceNotFoundException as error:
         raise HTTPException(status_code=404, detail=error.message)
 
@@ -77,14 +93,6 @@ def partial_update(
         return use_case.execute(id, data)
     except ResourceNotFoundException as error:
         raise HTTPException(status_code=404, detail=error.message)
-
-
-from enum import Enum
-
-
-class ResourceNameEnum(str, Enum):
-    Tag = "Tag"
-    Status = "Status"
 
 
 def remove_tag_status(

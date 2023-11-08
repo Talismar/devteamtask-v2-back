@@ -20,4 +20,7 @@ class AppBaseSettings(BaseSettings):
     EMAIL_PASSWORD: str
     EMAIL_FROM: EmailStr
 
+    GITHUB_CLIENT_ID: str
+    GITHUB_CLIENT_SECRET: str
+
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)

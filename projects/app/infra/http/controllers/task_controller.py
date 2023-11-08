@@ -76,4 +76,7 @@ def partial_update(
     data: TaskPartialUpdateRequestSchema,
     use_case: TaskPartialUpdateUseCase = Depends(make_task_partial_update),
 ):
-    return use_case.execute(id, data.model_dump(exclude_unset=True))
+    try:
+        return use_case.execute(id, data.model_dump(exclude_unset=True))
+    except ResourceNotFoundException as exception:
+        return JSONResponse(content={"detail": exception.message}, status_code=404)

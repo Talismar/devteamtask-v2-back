@@ -41,6 +41,6 @@ router.add_api_route(
     "/{id}",
     task_controller.partial_update,
     methods=["PATCH"],
-    # response_model=TaskSchema,
+    response_model=TaskSchema,
     # dependencies=[Depends(current_user_dependency)],
 )

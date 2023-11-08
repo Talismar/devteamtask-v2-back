@@ -11,6 +11,7 @@ router = APIRouter(prefix="/api/user/user", tags=["user"])
 router.add_api_route(
     "/", user.create, methods=["POST"], status_code=201, response_model=UserSchema
 )
+router.add_api_route("/github", user.github_create, methods=["GET"])
 router.add_api_route(
     "/",
     user.list_all,

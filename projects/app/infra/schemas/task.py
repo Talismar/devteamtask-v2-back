@@ -20,6 +20,8 @@ class TaskSchema(TaskBaseSchema):
     status: StatusSchema
     project_id: UUID
     tags: list[TagSchema]
+    created_by_user_id: int
+    assigned_to_user_id: Optional[int]
 
 
 class TaskPostRequestSchema(TaskBaseSchema):
@@ -32,6 +34,8 @@ class TaskPartialUpdateRequestSchema(BaseModel):
     description: Optional[str] = None
     priority: Optional[int] = None
     status_id: Optional[int] = None
+    tags_ids: Optional[list[int]] = None
+    assigned_to_user_id: Optional[int] = None
 
 
 class TotalCompletedByDaySchema(BaseModel):

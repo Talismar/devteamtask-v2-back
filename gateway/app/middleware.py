@@ -1,36 +1,63 @@
-# from starlette.datastructures import URL
-# from starlette.responses import RedirectResponse
+import httpx
+from fastapi.responses import RedirectResponse
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse, Response
 
 
-# class RedirectsMiddleware:
-#     def __init__(self, app, path_mapping: dict):
-#         self.app = app
-#         self.path_mapping = path_mapping
+class GatewayMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, services):
+        super().__init__(app)
+        self.services = services
 
-#     async def __call__(self, scope, receive, send):
-#         if scope["type"] != "http":
-#             await self.app(scope, receive, send)
-#             return
+    async def dispatch(self, request: Request, call_next):
+        if request["type"] != "http":
+            return await call_next(request)
 
-#         # url = URL(scope=scope)
+        path = request.url.path
+        query = request.url.query
 
-#         if True:
-#             # url = url.replace(path=f"/api/project", port="8001")
-#             # print(url)
-#             # url = self.get_url_redirect(url.path)
-#             url = "http://127.0.0.1:8001/project/"
-#             response = RedirectResponse(url, status_code=301)
-#             await response(scope, receive, send)
-#             return
+        service = None
+        if path.startswith("/api/project"):
+            service = self.services["project"]
+        elif path.startswith("/api/user"):
+            service = self.services["user"]
 
-#         await self.app(scope, receive, send)
+        if service:
+            destination_url = (
+                f"{service['url']}{path}{'?' + query if len(query) > 0 else ''}"
+            )
 
-#     def get_url_redirect(self, initial_path: str):
-#         service_name = initial_path.split("/")[1]
-#         complement = "/".join(initial_path.split("/")[2:])
+            async with httpx.AsyncClient() as client:
+                try:
+                    response = await client.request(
+                        request.method,
+                        destination_url,
+                        headers=dict(request.headers),
+                        data=await request.body(),
+                    )
+                except httpx.ConnectError as connection_error:
+                    return JSONResponse(
+                        content={"detail": connection_error.__str__()}, status_code=500
+                    )
 
-#         for base_path in self.path_mapping:
-#             if service_name in base_path:
-#                 return f"{self.path_mapping[base_path]}{complement}"
+            if response.status_code == 307:
+                return RedirectResponse(response.url)
 
-#         return False
+            if response.status_code == 204:
+                return Response(
+                    content="",
+                    status_code=response.status_code,
+                    headers=response.headers,
+                )
+
+            content_type = response.headers.get("content-type", None)
+
+            return Response(
+                content=response.content,
+                headers=response.headers,
+                status_code=response.status_code,
+                media_type=content_type,
+            )
+
+        return await call_next(request)

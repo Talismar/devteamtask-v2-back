@@ -1,3 +1,5 @@
+from typing import TypedDict
+
 from app.configs.local import settings
 from app.repositories.user_repository import UserRepository
 from app.utils.data_storage import get_url_media, save_file
@@ -9,12 +11,25 @@ from starlette.datastructures import UploadFile
 from ..models import UserModel
 
 
+class RequestGithubDTO(TypedDict):
+    login: str
+    id: int
+    avatar_url: int
+    email: None | str
+
+
 class UserService:
     def __init__(self, user_repository: UserRepository) -> None:
         self.user_repository = user_repository
 
     def list_all(self):
         return self.user_repository.list_all()
+
+    def create_by_github(self, auth_provider_name: str, data: RequestGithubDTO):
+        try:
+            return self.user_repository.create(data, auth_provider_name)
+        except IntegrityError:
+            raise Exception(detail="Account already exists")
 
     def create(self, data):
         if data.password != data.password_confirm:

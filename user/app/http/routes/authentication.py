@@ -35,3 +35,4 @@ router.add_api_route(
     response_model=AuthenticationTokenPostResponseSchema,
     methods=["POST"],
 )
+router.add_api_route("/github_auth", authentication.github_auth, methods=["GET"])

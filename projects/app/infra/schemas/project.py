@@ -13,23 +13,14 @@ from .task import TaskSchema
 
 class ProjectBaseSchema(BaseModel):
     name: str
-    # "name": "Project Two",
-    start_date: datetime
-    # "start_date": "2023-10-29T19:37:39.931000",
     end_date: datetime
-    # "end_date": "2023-10-29T19:37:39.931000",
 
 
 class ProjectResponseSchema(ProjectBaseSchema):
     id: UUID
-    # "id": "0bd2dec2-7c0a-11ee-8a1e-f09e4ac22c2f",
     logo_url: Optional[str]
-    # "logo_url": null,
+    start_date: datetime
     state: str
-    # "state": "IN PROGRESS",
-    # "leader_id": 1,
-    # "product_owner_id": null,
-    # "collaborators_ids": [],
     leader_id: int
     product_owner_id: Optional[str]
     collaborators_ids: list[int]

@@ -6,4 +6,3 @@ def authenticated_user_audit(email: str):
         authentication_date = datetime.now()
         content = f"Authentication info: Date {authentication_date} Username {email}\n"
         file.write(content)
-        print("Acabou de escrever")

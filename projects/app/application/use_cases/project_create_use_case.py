@@ -21,8 +21,8 @@ class ProjectCreateUseCase:
 
     def execute(self, data: ProjectCreateRequestDTO):
         status = set()
-        product_owner_email = data.get("product_owner_email", None)
-        collaborators_email = data.get("collaborators_email", None)
+        product_owner_email = data.pop("product_owner_email", None)
+        collaborators_email = data.pop("collaborators_email", None)
 
         if product_owner_email is not None:
             # TODO: Implement Send email to product owner

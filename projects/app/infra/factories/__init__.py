@@ -1,4 +1,5 @@
 from .make_project_create import make_project_create
+from .make_project_delete import make_project_delete
 from .make_project_get_all import make_project_get_all
 from .make_project_get_by_id import make_project_get_by_id
 from .make_project_partial_update import make_project_partial_update

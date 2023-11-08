@@ -9,9 +9,7 @@ class TaskPartialUpdateUseCase:
         self.__task_repository = task_repository
 
     def execute(self, id: int, data):
-        updated = self.__task_repository.partial_update(id, data)
-
-        # if not was_deleted:
-        #     raise ResourceNotFoundException("Task")
-
-        return updated
+        try:
+            return self.__task_repository.partial_update(id, data)
+        except ResourceNotFoundException as e:
+            raise e

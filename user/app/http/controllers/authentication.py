@@ -6,6 +6,7 @@ from app.services.authentication import AuthenticationService
 from app.services.factories.make_authentication_service import (
     make_authentication_service,
 )
+from app.utils.client_github import ClientGithub
 from fastapi import BackgroundTasks, Depends, HTTPException, Request
 from starlette.datastructures import UploadFile
 
@@ -51,3 +52,14 @@ def refresh_token(
     ),
 ):
     return authentication_service.refresh_token(data.refresh_token)
+
+
+def github_auth(code: str | None = None, state: str | None = None):
+    print(code, state)
+    with ClientGithub() as github_client:
+        oauth_response_json = github_client.get_tokens(code)
+        user_info_response_json = github_client.get_profile_info(
+            oauth_response_json["access_token"]
+        )
+
+    return "asdasd"

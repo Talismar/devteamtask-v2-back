@@ -17,7 +17,7 @@ class UserRepository(ABC, Generic[T]):
         pass
 
     @abstractmethod
-    def create(self, user: Any) -> UserModel:
+    def create(self, user: Any, auth_provider: None | str = None) -> UserModel:
         pass
 
     @abstractmethod

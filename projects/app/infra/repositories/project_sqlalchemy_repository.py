@@ -2,7 +2,12 @@ from uuid import UUID
 
 from app.application.interfaces.repositories import ProjectRepository
 from app.domain.errors import ResourceNotFoundException
-from app.infra.database.models import ProjectCollaboratorModel, ProjectModel, TagModel
+from app.infra.database.models import (
+    ProjectCollaboratorModel,
+    ProjectModel,
+    SprintModel,
+    TagModel,
+)
 from app.infra.database.utils import attribute_names
 from sqlalchemy import or_, text
 from sqlalchemy.orm import Session
@@ -66,9 +71,37 @@ class ProjectSqlalchemyRepository(ProjectRepository):
             .all()
         )
 
-        users = self.get_users_data(data)
+        users = []
+        if len(data) != 0:
+            users = self.get_users_data(data)
 
-        return {"projects": data, "users": users}
+        project_results = []
+
+        for index, project in enumerate(data):
+            sprints = []
+            for sprint in project.sprints:
+                if sprint.state == "IN PROGRESS":
+                    sprints = [sprint]
+
+            project_results.append(
+                {
+                    "name": project.name,
+                    "start_date": project.start_date,
+                    "end_date": project.end_date,
+                    "id": project.id,
+                    "logo_url": project.logo_url,
+                    "state": project.state,
+                    "leader_id": project.leader_id,
+                    "product_owner_id": project.product_owner_id,
+                    "collaborators_ids": project.collaborators_ids,
+                    "tasks": project.tasks,
+                    "status": project.status,
+                    "tags": project.tags,
+                    "sprints": sprints,
+                }
+            )
+
+        return {"projects": project_results, "users": users}
 
     def get_by_id(self, id: UUID):
         data = self.__session.query(ProjectModel).get(id)
@@ -95,6 +128,15 @@ class ProjectSqlalchemyRepository(ProjectRepository):
             }
 
         return data
+
+    def delete(self, id: UUID):
+        data = self.__session.query(ProjectModel).get(id)
+
+        if data is not None:
+            self.__session.delete(data)
+            self.__session.commit()
+        else:
+            raise ResourceNotFoundException("Project")
 
     def add_tag(self, project_id: UUID, tag_instance: TagModel):
         project_instance = (

@@ -1,4 +1,5 @@
 from .project_create_use_case import ProjectCreateUseCase
+from .project_delete_use_case import ProjectDeleteUseCase
 from .project_get_all_use_case import ProjectGetAllUseCase
 from .project_get_by_id_use_case import ProjectGetByIdUseCase
 from .project_partial_update_use_case import ProjectPartialUpdateUseCase

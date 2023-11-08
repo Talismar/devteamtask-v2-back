@@ -3,7 +3,7 @@ from uuid import UUID
 
 from app.application.interfaces.repositories import TaskRepository
 from app.domain.errors import ResourceNotFoundException
-from app.infra.database.models import StatusModel, TaskModel
+from app.infra.database.models import StatusModel, TagModel, TaskModel
 from sqlalchemy import func, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -36,28 +36,27 @@ class TaskSqlalchemyRepository(TaskRepository):
         return data
 
     def partial_update(self, id: int, data: dict):
-        # self.__session.query(TaskModel).filter(TaskModel.id == id).update(data)
-        update_statement = (
-            update(TaskModel)
-            .where(TaskModel.id == id)
-            .values(**data)
-            .returning(
-                TaskModel.id,
-                TaskModel.name,
-                TaskModel.description,
-                TaskModel.created_at,
-                TaskModel.updated_at,
-                TaskModel.priority,
-                TaskModel.status_id,
-            )
-        )
+        tags_ids = data.pop("tags_ids", None)
 
-        result = self.__session.execute(update_statement)
-        dict_of_results = {
-            key: value for key, value in zip(result.keys(), result.fetchall()[0])
-        }
+        task_instance = self.__session.query(TaskModel).get(id)
+
+        if task_instance is None:
+            raise ResourceNotFoundException("Task")
+
+        if len(tags_ids) > 0:
+            tags_instance = (
+                self.__session.query(TagModel).filter(TagModel.id.in_(tags_ids)).all()
+            )
+
+            [task_instance.tags.add(tag) for tag in tags_instance]
+
+        for key, value in data.items():
+            setattr(task_instance, key, value)
+
         self.__session.commit()
-        return dict_of_results
+        self.__session.refresh(task_instance)
+
+        return task_instance
 
     def delete(self, id: int):
         data = self.__session.get(TaskModel, id)
@@ -94,14 +93,22 @@ class TaskSqlalchemyRepository(TaskRepository):
         status_instance = self.get_status_by_name("Done")
         seven_days_ago = datetime.now() - timedelta(days=7)
 
-        query = self.__session.query(TaskModel).filter(
-            TaskModel.assigned_to_user_id == user_id,
-            TaskModel.status == status_instance,
-            TaskModel.updated_at >= seven_days_ago,
+        query = (
+            self.__session.query(TaskModel)
+            .filter(
+                TaskModel.assigned_to_user_id == user_id,
+                TaskModel.status == status_instance,
+                TaskModel.updated_at >= seven_days_ago,
+            )
+            .all()
         )
 
         def total_by_date(date):
-            return query.filter(func.date(TaskModel.updated_at) == date.date()).count()
+            return (
+                self.__session.query(TaskModel)
+                .filter(func.date(TaskModel.updated_at) == date)
+                .count()
+            )
 
         data = []
 
@@ -113,7 +120,7 @@ class TaskSqlalchemyRepository(TaskRepository):
         return data
 
     def get_total_pending_in_last_7_days(self, user_id):
-        status_instance = self.get_status_by_name("To do")
+        status_instance = self.get_status_by_name("To Do")
         seven_days_ago = datetime.now() - timedelta(days=7)
         task_amount = (
             self.__session.query(TaskModel)
