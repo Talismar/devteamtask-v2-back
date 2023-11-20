@@ -1,0 +1,10 @@
+[run]
+omit =    
+    */tests/*
+    */application/repositories/*
+    */*in_memory*.py
+    */__init__.py
+    */dtos.py
+    */abstract*.py
+    */errors/*
+    */domain/*

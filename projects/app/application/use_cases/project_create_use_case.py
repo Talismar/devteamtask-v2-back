@@ -1,15 +1,5 @@
-from datetime import datetime
-from typing import TypedDict
-
-from ..interfaces.repositories import ProjectRepository, StatusRepository
-
-
-class ProjectCreateRequestDTO(TypedDict):
-    name: str
-    start_date: datetime
-    end_date: datetime
-    product_owner_email: str | None
-    collaborators_email: list[str] | None
+from app.application.dtos import ProjectCreateRequestDTO
+from app.application.repositories import ProjectRepository, StatusRepository
 
 
 class ProjectCreateUseCase:

@@ -1,5 +1,8 @@
 from typing import Annotated
 
+from fastapi import Depends, HTTPException, Path
+from fastapi.responses import JSONResponse, Response
+
 from app.application.use_cases import (
     StatusCreateUseCase,
     StatusDeleteUseCase,
@@ -14,16 +17,14 @@ from app.infra.factories import (
     make_status_get_by_id,
 )
 from app.infra.schemas.status import StatusPostRequestSchema
-from fastapi import Depends, HTTPException, Path
-from fastapi.responses import JSONResponse, Response
 
 
 def create(
     data: StatusPostRequestSchema,
     use_case: StatusCreateUseCase = Depends(make_status_create),
 ):
-    print(data.model_dump())
-    return use_case.execute(data.model_dump())
+    dict_data = data.model_dump()
+    return use_case.execute(dict_data)
 
 
 def get_all(use_case: StatusGetAllUseCase = Depends(make_status_get_all)):

@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column
-
+from .mixins import CommonMixin
 from .base_model import BaseModel
 
 ProjectStatusModel = Table(
@@ -21,8 +21,8 @@ ProjectTagModel = Table(
 )
 
 
-class ProjectCollaboratorModel(BaseModel):
-    project_id: Mapped[UUID] = mapped_column(ForeignKey("project.id"), primary_key=True)
+class ProjectCollaboratorModel(CommonMixin, BaseModel):
+    project_id: Mapped[UUID] = mapped_column(ForeignKey("project.id"))
     user_id: Mapped[int]
 
 

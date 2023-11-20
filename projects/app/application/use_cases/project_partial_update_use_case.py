@@ -1,77 +1,71 @@
-from abc import ABC
-from datetime import datetime
-from typing import BinaryIO, TypedDict
+from uuid import UUID
 
+from app.application.abstract_email_service import AbstractEmailService
+from app.application.abstract_media_storages import AbstractMediaStorages
+from app.application.dtos import ProjectPartialUpdateRequestDTO
+from app.application.repositories import ProjectRepository
 from app.domain.errors import ResourceNotFoundException
-from app.domain.feedback import SuccessFulCreationFeedback
-
-from ..interfaces.repositories import ProjectRepository
-
-
-class FileTypes(TypedDict):
-    file: BinaryIO
-    filename: None | str
-
-
-class FileStorageUtils:
-    def __init__(self, relative_path: list[str], base_url: str) -> None:
-        self.relative_path = relative_path
-        self.base_url = base_url
-
-    def save_file(self, new_file: any, original_filename: str | None = None):
-        pass
-
-    def get_url_media(self, filename: str):
-        pass
-
-
-class ProjectPartialUpdateDTO(TypedDict):
-    name: None | str
-    state: None | str
-    logo_url: None | FileTypes
-    end_date: None | datetime
-    product_owner_email: None | str
-
-
-class SendEmailService(ABC):
-    def send(self, email: str, resource_id: int):
-        pass
 
 
 class ProjectPartialUpdateUseCase:
     def __init__(
         self,
         project_repository: ProjectRepository,
-        file_storage_utils: FileStorageUtils,
-        send_email_service: SendEmailService,
-    ) -> None:
+        media_storages: AbstractMediaStorages,
+        email_service: AbstractEmailService,
+    ):
         self.__project_repository = project_repository
-        self.file_storage_utils = file_storage_utils
-        self.send_email_service = send_email_service
+        self.media_storages = media_storages
+        self.email_service = email_service
 
-    def execute(self, id: int, data_to_update: ProjectPartialUpdateDTO):
-        project_model = self.__project_repository.get_by_id(id)
+    def execute(self, id: UUID, data_to_update: ProjectPartialUpdateRequestDTO):
+        project = self.__project_repository.get_by_id(id)
 
-        if project_model is None:
+        if project is None:
             raise ResourceNotFoundException("Project")
 
         logo_url = data_to_update.pop("logo_url", None)
         product_owner_email = data_to_update.pop("product_owner_email", None)
+        collaborator_emails = data_to_update.pop("collaborator_emails", None)
 
         if logo_url is not None:
-            project_model.logo_url = self.file_storage_utils.save_file(
-                logo_url, project_model.logo_url
+            data_to_update["logo_url"] = self.media_storages.save_file(
+                logo_url, project["logo_url"]
             )
 
         if product_owner_email is not None:
-            self.send_email_service.send([product_owner_email], project_model.id)
+            try:
+                self.email_service.send(
+                    [product_owner_email],
+                    str(project["id"]),
+                    "add_product_owner",
+                )
+            except Exception as e:
+                raise e
 
-        project_model_updated = self.__project_repository.partial_update(
-            project_model, data_to_update
-        )
+        if collaborator_emails is not None:
+            try:
+                self.email_service.send(
+                    collaborator_emails,
+                    str(project["id"]),
+                    "add_collaborator",
+                )
+            except Exception as e:
+                raise e
 
-        project_model_updated.logo_url = self.file_storage_utils.get_url_media(
-            project_model_updated.logo_url
-        )
+        if len(data_to_update) > 0:
+            project_model_updated = self.__project_repository.partial_update(
+                id, data_to_update
+            )
 
-        return project_model_updated
+            if (
+                project_model_updated is not None
+                and project_model_updated["logo_url"] is not None
+            ):
+                project_model_updated["logo_url"] = self.media_storages.get_url_media(
+                    project_model_updated["logo_url"]
+                )
+
+            return {"project_data": project_model_updated, "users": []}
+
+        return {"project_data": project, "users": []}

@@ -1,21 +1,24 @@
-from typing import Any, Optional, Union
+from datetime import datetime
+from typing import Optional
 from uuid import UUID
 
-from app.infra.database.enums import StateEnum
-from fastapi import Form
 from pydantic import BaseModel
 
-from .status import StatusSchema
+from app.domain.enums import StateEnum
 
 
 class SprintBaseSchema(BaseModel):
     name: str
     description: str
-    state: StateEnum
 
 
 class SprintSchema(SprintBaseSchema):
     id: int
+    updated_at: datetime
+    created_at: datetime
+    state: StateEnum
+    project_id: UUID
+
     # project:
     # event_notes:
 
@@ -27,12 +30,4 @@ class SprintPostRequestSchema(SprintBaseSchema):
 class SprintPartialUpdateRequestSchema(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    priority: Optional[int] = None
-
-
-class SprintPartialUpdateParams:
-    def __init__(
-        self,
-        name: Union[str, None] = Form(None),
-    ):
-        self.name = name
+    state: Optional[StateEnum] = None

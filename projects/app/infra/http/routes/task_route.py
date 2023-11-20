@@ -7,7 +7,9 @@ from ..dependencies.current_user_dependency import CurrentUserDependency
 current_user_dependency = CurrentUserDependency()
 
 router = APIRouter(
-    prefix="/task", dependencies=[Depends(current_user_dependency)], tags=["task"]
+    prefix="/task",
+    dependencies=[Depends(current_user_dependency)],
+    tags=["task"],
 )
 
 router.add_api_route("", task_controller.create, methods=["POST"], status_code=201)

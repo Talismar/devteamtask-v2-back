@@ -167,3 +167,6 @@ tmp
 
 # development files
 development_notes.md
+
+# created by middlewares
+*request_log.txt

@@ -1,6 +1,5 @@
+from app.application.repositories import TaskRepository
 from app.domain.errors import ResourceNotFoundException
-
-from ..interfaces.repositories import TaskRepository
 
 
 class TaskGetByIdUseCase:

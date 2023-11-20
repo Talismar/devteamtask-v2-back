@@ -1,12 +1,14 @@
 from typing import Annotated
 
-from app.application.use_cases import SprintCreateUseCase
+from fastapi import Depends, HTTPException
+
+from app.application.use_cases import SprintCreateUseCase, SprintPartialUpdateUseCase
 from app.domain.errors import BusinessRuleException, ResourceNotFoundException
-from app.infra.factories import make_sprint_create
-from app.infra.schemas.sprint import SprintPostRequestSchema
-from fastapi import Depends, HTTPException, Path, Request
-from fastapi.encoders import jsonable_encoder
-from fastapi.responses import JSONResponse, Response
+from app.infra.factories import make_sprint_create, make_sprint_partial_update
+from app.infra.schemas.sprint import (
+    SprintPartialUpdateRequestSchema,
+    SprintPostRequestSchema,
+)
 
 from ..dependencies.get_user_id_dependency import get_user_id_dependency
 
@@ -25,32 +27,13 @@ def create(
         raise HTTPException(status_code=400, detail=error.message)
 
 
-# def get_all(use_case: TaskGetAllUseCase = Depends(make_task_get_all)):
-#     return use_case.execute()
-
-
-# def get_by_id(
-#     id: Annotated[int, Path(title="The ID of the item to get")],
-#     use_case: TaskGetByIdUseCase = Depends(make_task_get_by_id),
-# ):
-#     try:
-#         return use_case.execute(id)
-#     except ResourceNotFoundException as error:
-#         raise HTTPException(status_code=404, detail=error.message)
-
-
-# def delete(id: int, use_case: TaskDeleteUseCase = Depends(make_task_delete)):
-#     try:
-#         success_message = use_case.execute(id)
-#         return Response(content="", status_code=204, media_type="application/json")
-#     except ResourceNotFoundException as exception:
-#         return JSONResponse(content={"detail": exception.message}, status_code=404)
-
-
-# # TESTING AFTER
-# def partial_update(
-#     id: int,
-#     data: TaskPartialUpdateRequestSchema,
-#     use_case: TaskPartialUpdateUseCase = Depends(make_task_partial_update),
-# ):
-#     return use_case.execute(id, data.model_dump(exclude_unset=True))
+def partial_update(
+    id: int,
+    data: SprintPartialUpdateRequestSchema,
+    use_case: SprintPartialUpdateUseCase = Depends(make_sprint_partial_update),
+):
+    try:
+        dict_data = data.model_dump(exclude_unset=True)
+        return use_case.execute(id, dict_data)  # type: ignore
+    except ResourceNotFoundException as exception:
+        raise HTTPException(status_code=404, detail=exception.message)

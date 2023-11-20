@@ -1,4 +1,6 @@
-class BusinessRuleException(Exception):
+from . import AppBaseException
+
+
+class BusinessRuleException(AppBaseException):
     def __init__(self, message="Error") -> None:
-        self.message = message
-        self.status_code = 401
+        super().__init__(message, 400)

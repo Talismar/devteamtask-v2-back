@@ -1,27 +1,37 @@
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from app.application.interfaces.repositories import TaskRepository
-from app.domain.errors import ResourceNotFoundException
-from app.infra.database.models import StatusModel, TagModel, TaskModel
 from sqlalchemy import func, text, update
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only
+
+from app.application.repositories import TaskRepository
+from app.domain.errors import ResourceNotFoundException
+from app.infra.database.models import StatusModel, TagModel, TaskModel
+
+from .mapper.task_sqlalchemy_mapper import TaskSqlalchemyMapper
 
 
 class TaskSqlalchemyRepository(TaskRepository):
     def __init__(self, session: Session) -> None:
         self.__session = session
 
-    def create(self, data: dict):
+    def create(self, data, tags_ids: list[int]):
         try:
             new_data = TaskModel(**data)
+
+            tags = (
+                self.__session.query(TagModel).filter(TagModel.id.in_(tags_ids)).all()
+            )
+
+            for tag in tags:
+                new_data.tags.add(tag)
 
             self.__session.add(new_data)
             self.__session.commit()
             self.__session.refresh(new_data)
 
-            return new_data
+            return TaskSqlalchemyMapper.toDomain(new_data)
         except IntegrityError as e:
             raise ResourceNotFoundException(
                 e.args[0].split("is not present in table")[1].split('"')[1].capitalize()
@@ -32,18 +42,18 @@ class TaskSqlalchemyRepository(TaskRepository):
         return data
 
     def get_by_id(self, id: int):
-        data = self.__session.query(TaskModel).get(id)
+        data = self.__session.get(TaskModel, id)
         return data
 
     def partial_update(self, id: int, data: dict):
         tags_ids = data.pop("tags_ids", None)
 
-        task_instance = self.__session.query(TaskModel).get(id)
+        task_instance = self.__session.get(TaskModel, id)
 
         if task_instance is None:
             raise ResourceNotFoundException("Task")
 
-        if len(tags_ids) > 0:
+        if tags_ids is not None and len(tags_ids) > 0:
             tags_instance = (
                 self.__session.query(TagModel).filter(TagModel.id.in_(tags_ids)).all()
             )
@@ -66,7 +76,7 @@ class TaskSqlalchemyRepository(TaskRepository):
             self.__session.commit()
             return True
 
-        return False
+        raise ResourceNotFoundException("Task")
 
     def get_status_by_name(self, name: str):
         status_instance = self.__session.query(StatusModel).filter_by(name=name).first()

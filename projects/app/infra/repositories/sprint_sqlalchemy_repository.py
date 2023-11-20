@@ -1,15 +1,18 @@
-from app.application.interfaces.repositories import SprintRepository
-from app.domain.errors import ResourceNotFoundException
-from app.infra.database.models import SprintModel
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+
+from app.application.repositories import SprintRepository
+from app.domain.errors import ResourceNotFoundException
+from app.infra.database.models import SprintModel
+
+from .mapper.sprint_sqlalchemy_mapper import SprintSqlalchemyMapper
 
 
 class SprintSqlalchemyRepository(SprintRepository):
     def __init__(self, session: Session) -> None:
         self.__session = session
 
-    def create(self, data: dict):
+    def create(self, data):
         try:
             new_data = SprintModel(**data)
 
@@ -17,31 +20,22 @@ class SprintSqlalchemyRepository(SprintRepository):
             self.__session.commit()
             self.__session.refresh(new_data)
 
-            return new_data
+            return SprintSqlalchemyMapper.toDomain(new_data)
         except IntegrityError as e:
             raise ResourceNotFoundException(
                 e.args[0].split("is not present in table")[1].split('"')[1].capitalize()
             )
 
-    # def get_all(self):
-    #     data = self.__session.query(TaskModel).all()
-    #     return data
+    def partial_update(self, id, data):
+        sprint_model = self.__session.get(SprintModel, id)
 
-    # def get_by_id(self, id: int):
-    #     data = self.__session.query(TaskModel).get(id)
-    #     return data
+        if sprint_model is None:
+            raise ResourceNotFoundException("Sprint")
 
-    # def partial_update(self, id: int, data):
-    #     self.__session.query(TaskModel).filter(TaskModel.id == id).update(data)
-    #     self.__session.commit()
-    #     return "TODO"
+        for key, value in data.items():
+            setattr(sprint_model, key, value)
 
-    # def delete(self, id: int):
-    #     data = self.__session.get(TaskModel, id)
+        self.__session.commit()
+        self.__session.refresh(sprint_model)
 
-    #     if data is not None:
-    #         self.__session.delete(data)
-    #         self.__session.commit()
-    #         return True
-
-    #     return False
+        return SprintSqlalchemyMapper.toDomain(sprint_model)

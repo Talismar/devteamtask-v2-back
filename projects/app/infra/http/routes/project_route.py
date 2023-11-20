@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends
 
 from ...schemas.project import (
     ProjectListResponseSchema,
-    ProjectPartialUpdateRequestSchema,
     ProjectResponseSchema,
     ProjectSchema,
 )
@@ -34,10 +33,20 @@ router.add_api_route(
     methods=["GET"],
 )
 router.add_api_route(
+    "/invite_collaborators",
+    project_controller.invite_collaborators,
+    methods=["POST"],
+)
+router.add_api_route(
+    "/add_product_owner",
+    project_controller.add_product_owner,
+    methods=["GET"],
+)
+router.add_api_route(
     "/{id}",
     project_controller.get_by_id,
     methods=["GET"],
-    response_model=ProjectSchema,
+    # response_model=ProjectSchema,
     dependencies=[Depends(current_user_dependency)],
 )
 router.add_api_route(
@@ -52,6 +61,6 @@ router.add_api_route(
     "/{id}",
     project_controller.partial_update,
     methods=["PATCH"],
-    response_model=ProjectResponseSchema,
+    response_model=ProjectSchema,
     dependencies=[Depends(current_user_dependency)],
 )

@@ -1,4 +1,4 @@
-from ..interfaces.repositories import StatusRepository
+from app.application.repositories import StatusRepository
 
 
 class StatusGetAllUseCase:

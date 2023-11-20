@@ -1,8 +1,5 @@
-from uuid import UUID
+from .types import TaskTypes
 
 
-class Task:
-    def __init__(self, id: UUID, name: str, description: str) -> None:
-        self.__id = id
-        self.name = name
-        self.description = description
+class Task(TaskTypes, total=False):
+    pass

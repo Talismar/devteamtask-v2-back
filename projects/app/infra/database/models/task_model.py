@@ -7,7 +7,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..associations import TaskTagModel
 from ..base_model import BaseModel
-from ..enums import DefaultStatusEnum
 from ..mixins import CommonMixin, TimestampMixin
 
 

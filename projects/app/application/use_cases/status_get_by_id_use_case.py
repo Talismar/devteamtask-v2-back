@@ -1,6 +1,5 @@
+from app.application.repositories import StatusRepository
 from app.domain.errors import ResourceNotFoundException
-
-from ..interfaces.repositories import StatusRepository
 
 
 class StatusGetByIdUseCase:

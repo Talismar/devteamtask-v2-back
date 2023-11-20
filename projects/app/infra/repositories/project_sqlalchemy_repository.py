@@ -1,16 +1,21 @@
+from typing import Literal
 from uuid import UUID
 
-from app.application.interfaces.repositories import ProjectRepository
+from sqlalchemy import and_, asc, or_, text, update
+from sqlalchemy.orm import Session, joinedload
+
+from app.application.repositories import ProjectRepository
 from app.domain.errors import ResourceNotFoundException
 from app.infra.database.models import (
     ProjectCollaboratorModel,
     ProjectModel,
     SprintModel,
+    StatusModel,
     TagModel,
 )
 from app.infra.database.utils import attribute_names
-from sqlalchemy import or_, text
-from sqlalchemy.orm import Session
+
+from .mapper.project_sqlalchemy_mapper import ProjectSqlalchemyMapper
 
 
 class ProjectSqlalchemyRepository(ProjectRepository):
@@ -19,118 +24,69 @@ class ProjectSqlalchemyRepository(ProjectRepository):
 
     def create(self, data):
         new_data = ProjectModel(**data)
-        self.__session.add(new_data)
-        self.__session.commit()
-        self.__session.refresh(new_data)
+        try:
+            self.__session.add(new_data)
+            self.__session.commit()
+            self.__session.refresh(new_data)
 
-        return new_data
+            return ProjectSqlalchemyMapper.toDomain(new_data)
+        except Exception as e:
+            raise e
 
-    def get_users_data(self, data: list[ProjectModel]):
-        leaders_ids = [row.leader_id for row in data]
-        product_owners_ids = []
-        collaborators_ids = []
-
-        for row in data:
-            if row.product_owner_id is None:
-                continue
-            product_owners_ids.append(row.product_owner_id)
-
-        for project_row in data:
-            if len(project_row.collaborators_ids) == 0:
-                continue
-            for collaborator_row in project_row.collaborators_ids:
-                collaborators_ids.append(collaborator_row.user_id)
-
-        users_ids = tuple(set(leaders_ids + product_owners_ids + collaborators_ids))
-
+    def get_users_data(self, users_ids):
         params = {"users_ids": users_ids}
-        query = "SELECT id, name, avatar_url FROM users WHERE id IN :users_ids;"
+        query = "SELECT id, name, email, avatar_url FROM users WHERE id IN :users_ids;"
         result = self.__session.execute(text(query), params)
         results = []
 
         for row in result.fetchall():
             row_data = {}
-            for column, value in zip(result.keys(), row):
+            for column, value in zip(result.keys(), row):  # type: ignore
                 row_data[column] = value
             results.append(row_data)
 
         return results
 
-    def get_all(self, user_id: int):
-        data = (
+    def get_all(self, user_id):
+        query_data = (
             self.__session.query(ProjectModel)
+            .outerjoin(
+                SprintModel,
+                and_(
+                    ProjectModel.id == SprintModel.project_id,
+                    SprintModel.state == "IN PROGRESS",
+                ),
+            )
             .filter(
                 or_(
                     ProjectModel.leader_id == user_id,
                     ProjectModel.product_owner_id == user_id,
                     ProjectModel.collaborators_ids.any(
-                        ProjectCollaboratorModel.user_id.in_([user_id])
+                        ProjectCollaboratorModel.user_id == user_id
                     ),
                 )
             )
             .all()
         )
 
-        users = []
-        if len(data) != 0:
-            users = self.get_users_data(data)
+        projects = []
 
-        project_results = []
+        for row in query_data:
+            project = ProjectSqlalchemyMapper.toListDomain(row)
+            projects.append(project)
 
-        for index, project in enumerate(data):
-            sprints = []
-            for sprint in project.sprints:
-                if sprint.state == "IN PROGRESS":
-                    sprints = [sprint]
-
-            project_results.append(
-                {
-                    "name": project.name,
-                    "start_date": project.start_date,
-                    "end_date": project.end_date,
-                    "id": project.id,
-                    "logo_url": project.logo_url,
-                    "state": project.state,
-                    "leader_id": project.leader_id,
-                    "product_owner_id": project.product_owner_id,
-                    "collaborators_ids": project.collaborators_ids,
-                    "tasks": project.tasks,
-                    "status": project.status,
-                    "tags": project.tags,
-                    "sprints": sprints,
-                }
-            )
-
-        return {"projects": project_results, "users": users}
+        return projects
 
     def get_by_id(self, id: UUID):
-        data = self.__session.query(ProjectModel).get(id)
+        project = self.__session.get(ProjectModel, id)
 
-        if data is not None:
-            users = self.get_users_data([data])
-            return {
-                "project_data": {
-                    "id": data.id,
-                    "name": data.name,
-                    "state": data.state,
-                    "end_date": data.end_date,
-                    "start_date": data.start_date,
-                    "logo_url": data.logo_url,
-                    "leader_id": data.leader_id,
-                    "product_owner_id": data.product_owner_id,
-                    "collaborators_ids": data.collaborators_ids,
-                    "status": data.status,
-                    "tags": data.tags,
-                    "tasks": data.tasks,
-                    "sprints": data.sprints,
-                },
-                "users": users,
-            }
+        if project is not None:
+            return ProjectSqlalchemyMapper.toDomain(project)
 
-        return data
+        return None
 
     def delete(self, id: UUID):
-        data = self.__session.query(ProjectModel).get(id)
+        data = self.__session.get(ProjectModel, id)
 
         if data is not None:
             self.__session.delete(data)
@@ -138,7 +94,12 @@ class ProjectSqlalchemyRepository(ProjectRepository):
         else:
             raise ResourceNotFoundException("Project")
 
-    def add_tag(self, project_id: UUID, tag_instance: TagModel):
+    def add_tag_status(
+        self,
+        project_id,
+        instance: TagModel | StatusModel,
+        instance_name,
+    ):
         project_instance = (
             self.__session.query(ProjectModel).filter_by(id=project_id).first()
         )
@@ -146,17 +107,52 @@ class ProjectSqlalchemyRepository(ProjectRepository):
         if project_instance is None:
             raise ResourceNotFoundException("Project")
 
-        project_instance.tags.add(tag_instance)
+        if instance_name == "tags":
+            project_instance.tags.add(instance)
+        else:
+            project_instance.status.add(instance)
+
         self.__session.commit()
         return "Sucessfully added"
 
-    def partial_update(self, project_model: ProjectModel, data):
-        for field, value in data.items():
-            setattr(project_model, field, value)
+    def partial_update(self, id, data):
+        stmt = (
+            update(ProjectModel)
+            .where(ProjectModel.id == id)
+            .values(**data)
+            .returning(ProjectModel)
+        )
+        result = self.__session.execute(stmt)
+
+        updated_data = result.fetchone()
 
         self.__session.commit()
-        self.__session.refresh(project_model)
-        return project_model
+
+        return ProjectSqlalchemyMapper.toDomain(updated_data[0])
+
+    def add_collaborator(self, id, collaborator_id):
+        project_collaborator = (
+            self.__session.query(ProjectCollaboratorModel)
+            .filter_by(project_id=id, user_id=collaborator_id)
+            .first()
+        )
+
+        if project_collaborator is None:
+            project_collaborator = ProjectCollaboratorModel(
+                project_id=id, user_id=collaborator_id
+            )
+
+            try:
+                self.__session.add(project_collaborator)
+                self.__session.commit()
+                return "Added"
+            except Exception as e:
+                raise ResourceNotFoundException(
+                    e.args[0]
+                    .split("is not present in table")[1]
+                    .split('"')[1]
+                    .capitalize()
+                )
 
     def save(self, project_model):
         self.__session.commit()

@@ -1,6 +1,5 @@
+from app.application.repositories import TagRepository
 from app.domain.errors import ResourceNotFoundException
-
-from ..interfaces.repositories import TagRepository
 
 
 class TagGetByIdUseCase:

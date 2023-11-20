@@ -1,9 +1,9 @@
-from ..interfaces.repositories import TaskRepository
+from app.application.repositories import TaskRepository
 
 
 class TaskGetAllUseCase:
-    def __init__(self, status_repository: TaskRepository) -> None:
-        self.__status_repository = status_repository
+    def __init__(self, task_repository: TaskRepository) -> None:
+        self.task_repository = task_repository
 
     def execute(self):
-        return self.__status_repository.get_all()
+        return self.task_repository.get_all()

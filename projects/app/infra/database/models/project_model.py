@@ -7,9 +7,10 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.domain.enums import StateEnum
+
 from ..associations import ProjectStatusModel, ProjectTagModel
 from ..base_model import BaseModel
-from ..enums import StateEnum
 from ..mixins import CommonMixin
 
 

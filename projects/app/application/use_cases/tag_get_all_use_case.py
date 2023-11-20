@@ -1,4 +1,4 @@
-from ..interfaces.repositories import TagRepository
+from app.application.repositories import TagRepository
 
 
 class TagGetAllUseCase:

@@ -1,14 +1,6 @@
-from typing import TypedDict
-from uuid import UUID
-
+from app.application.dtos import TagRequestDTO
+from app.application.repositories import ProjectRepository, TagRepository
 from app.domain.errors import ResourceNotFoundException
-
-from ..interfaces.repositories import ProjectRepository, TagRepository
-
-
-class TagRequestDTO(TypedDict):
-    project_id: UUID
-    name: str
 
 
 class TagCreateUseCase:
@@ -23,7 +15,7 @@ class TagCreateUseCase:
 
         tag_instance = self.__tag_repository.get_or_create(data)
         try:
-            self.__project_repository.add_tag(project_id, tag_instance)
+            self.__project_repository.add_tag_status(project_id, tag_instance, "tags")
         except ResourceNotFoundException as e:
             raise e
 

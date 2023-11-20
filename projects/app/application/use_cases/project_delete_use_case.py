@@ -1,8 +1,7 @@
 from uuid import UUID
 
+from app.application.repositories import ProjectRepository
 from app.domain.errors import ResourceNotFoundException
-
-from ..interfaces.repositories import ProjectRepository, StatusRepository
 
 
 class ProjectDeleteUseCase:

@@ -1,15 +1,14 @@
 from datetime import datetime
-from typing import List
+from uuid import UUID
 
+from ..enums import StateEnum
 from .status import Status
+from .types import ProjectBaseTypes, SprintTypes, StatusTypes, TagTypes, TaskTypes
 
 
-class Project:
-    def __init__(
-        self, id, name, start_date: datetime, end_date: datetime, status: List[Status]
-    ) -> None:
-        self.__id = id
-        self.name = name
-        self.start_date = start_date
-        self.end_date = end_date
-        self.status = status
+class Project(ProjectBaseTypes, total=False):
+    sprints: list[SprintTypes]
+    current_sprint: SprintTypes | None
+    tasks: list[TaskTypes]
+    tags: list[TagTypes]
+    status: list[StatusTypes]

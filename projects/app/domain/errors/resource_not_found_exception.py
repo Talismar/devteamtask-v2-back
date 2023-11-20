@@ -1,4 +1,6 @@
-class ResourceNotFoundException(Exception):
+from . import AppBaseException
+
+
+class ResourceNotFoundException(AppBaseException):
     def __init__(self, resource_name: str) -> None:
-        self.message = resource_name + " not found"
-        self.status_code = 401
+        super().__init__(resource_name + " not found", 404)

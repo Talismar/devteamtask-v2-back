@@ -1,7 +1,6 @@
+from app.application.repositories import StatusRepository
 from app.domain.errors import ResourceNotFoundException
 from app.domain.feedback import SuccessFulCreationFeedback
-
-from ..interfaces.repositories import StatusRepository
 
 
 class StatusDeleteUseCase:
@@ -14,4 +13,4 @@ class StatusDeleteUseCase:
         if not was_deleted:
             raise ResourceNotFoundException("Status")
 
-        return SuccessFulCreationFeedback("Status").message
+        return SuccessFulCreationFeedback("Status", " deleted successfully").message

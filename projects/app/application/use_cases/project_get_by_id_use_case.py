@@ -1,31 +1,46 @@
 from uuid import UUID
 
+from app.application.abstract_media_storages import AbstractMediaStorages
+from app.application.repositories import ProjectRepository
 from app.domain.errors import ResourceNotFoundException
-
-from ..interfaces.repositories import ProjectRepository
-from .project_partial_update_use_case import FileStorageUtils
 
 
 class ProjectGetByIdUseCase:
     def __init__(
         self,
         project_repository: ProjectRepository,
-        file_storage_utils: FileStorageUtils,
+        media_storages: AbstractMediaStorages,
     ) -> None:
         self.__project_repository = project_repository
-        self.file_storage_utils = file_storage_utils
+        self.media_storages = media_storages
 
     def execute(self, id: UUID):
-        instance = self.__project_repository.get_by_id(id)
+        project = self.__project_repository.get_by_id(id)
 
-        if instance is None:
+        if project is None:
             raise ResourceNotFoundException("Project")
 
-        if isinstance(instance["project_data"]["logo_url"], str):
-            instance["project_data"][
-                "logo_url"
-            ] = self.file_storage_utils.get_url_media(
-                instance["project_data"]["logo_url"]
-            )
+        users = []
+        users_ids: set[int] = set()
 
-        return instance
+        if project["product_owner_id"] is not None:
+            users_ids.add(project["product_owner_id"])
+
+        if len(project["collaborators_ids"]) > 0:
+            users_ids.update(project["collaborators_ids"])
+
+        if len(project["sprints"]) > 0:
+            project["current_sprint"] = project["sprints"][0]
+        else:
+            project["current_sprint"] = None
+
+        if len(users_ids) > 0:
+            users = self.__project_repository.get_users_data(tuple(users_ids))  # type: ignore
+
+        if isinstance(project["logo_url"], str):
+            project["logo_url"] = self.media_storages.get_url_media(project["logo_url"])
+
+        return {
+            "project_data": project,
+            "users": users,
+        }

@@ -13,8 +13,7 @@ class StatusBaseSchema(BaseModel):
 
 class StatusSchema(StatusBaseSchema):
     id: int
-    # tasks: list[TaskSchema]
-    # projects: set
+    name: str
 
 
 class StatusPostRequestSchema(StatusBaseSchema):

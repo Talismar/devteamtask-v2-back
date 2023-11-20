@@ -1,5 +1,4 @@
-import httpx
-from fastapi.responses import RedirectResponse
+from httpx import AsyncClient, ConnectError
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
@@ -24,40 +23,27 @@ class GatewayMiddleware(BaseHTTPMiddleware):
             service = self.services["user"]
 
         if service:
-            destination_url = (
-                f"{service['url']}{path}{'?' + query if len(query) > 0 else ''}"
-            )
+            destination_url = f"{service['url']}{path}{'?' + query if len(query) > 0 else ''}"  # noqa: E501
 
-            async with httpx.AsyncClient() as client:
-                try:
-                    response = await client.request(
-                        request.method,
-                        destination_url,
-                        headers=dict(request.headers),
-                        data=await request.body(),
-                    )
-                except httpx.ConnectError as connection_error:
-                    return JSONResponse(
-                        content={"detail": connection_error.__str__()}, status_code=500
-                    )
+            try:
+                http_client: AsyncClient = request.state.http_client
 
-            if response.status_code == 307:
-                return RedirectResponse(response.url)
-
-            if response.status_code == 204:
-                return Response(
-                    content="",
-                    status_code=response.status_code,
-                    headers=response.headers,
+                response = await http_client.request(
+                    request.method,
+                    destination_url,
+                    headers=dict(request.headers),
+                    content=await request.body(),
                 )
 
-            content_type = response.headers.get("content-type", None)
-
-            return Response(
-                content=response.content,
-                headers=response.headers,
-                status_code=response.status_code,
-                media_type=content_type,
-            )
+                return Response(
+                    content=response.content,
+                    headers=response.headers,
+                    status_code=response.status_code,
+                )
+            except ConnectError as connection_error:
+                return JSONResponse(
+                    content={"detail": connection_error.__str__()},
+                    status_code=500,  # noqa: E501
+                )
 
         return await call_next(request)

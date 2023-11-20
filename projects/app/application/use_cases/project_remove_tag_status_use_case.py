@@ -1,8 +1,11 @@
 from uuid import UUID
 
+from app.application.repositories import (
+    ProjectRepository,
+    StatusRepository,
+    TagRepository,
+)
 from app.domain.errors import ResourceNotFoundException
-
-from ..interfaces.repositories import ProjectRepository, StatusRepository, TagRepository
 
 
 class ProjectRemoveTagStatusUseCase:

@@ -1,3 +1,15 @@
+# DAILY
+from .make_daily_create import make_daily_create
+from .make_daily_get_all_by_sprint_id import make_daily_get_all_by_sprint_id
+from .make_daily_get_by_id import make_daily_get_by_id
+from .make_daily_partial_update import make_daily_partial_update
+
+# EVENT NOTES
+from .make_event_notes_get_by_id import make_event_notes_get_by_id
+from .make_event_notes_partial_update import make_event_notes_partial_update
+
+# PROJECT
+from .make_project_add_collaborator import make_project_add_collaborator
 from .make_project_create import make_project_create
 from .make_project_delete import make_project_delete
 from .make_project_get_all import make_project_get_all
@@ -7,6 +19,7 @@ from .make_project_remove_tag_status import make_project_remove_tag_status
 
 # SPRINT
 from .make_sprint_create import make_sprint_create
+from .make_sprint_partial_update import make_sprint_partial_update
 
 # STATUS
 from .make_status_create import make_status_create

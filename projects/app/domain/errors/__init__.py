@@ -1,2 +1,3 @@
+from .app_base_exception import AppBaseException
 from .business_rule_exception import BusinessRuleException
 from .resource_not_found_exception import ResourceNotFoundException

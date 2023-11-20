@@ -1,9 +1,9 @@
-from app.configs.test import Session
+from app.infra.configs.test import Session
 
 
-def override_get_db():
+def override_database_connection():
     try:
-        db = Session()
-        yield db
+        session = Session()
+        yield session
     finally:
-        db.close()
+        session.close()

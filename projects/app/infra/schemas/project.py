@@ -11,6 +11,11 @@ from .tag import TagSchema
 from .task import TaskSchema
 
 
+class ProjectInviteCollaboratorsSchema(BaseModel):
+    project_id: UUID
+    emails: list[EmailStr]
+
+
 class ProjectBaseSchema(BaseModel):
     name: str
     end_date: datetime
@@ -22,12 +27,13 @@ class ProjectResponseSchema(ProjectBaseSchema):
     start_date: datetime
     state: str
     leader_id: int
-    product_owner_id: Optional[str]
+    product_owner_id: Optional[int]
     collaborators_ids: list[int]
     tasks: list[TaskSchema]
     status: list[StatusSchema]
     tags: list[TagSchema]
     sprints: list[SprintSchema]
+    # current_sprint: SprintSchema | None
 
 
 class ProjectPostRequestSchema(ProjectBaseSchema):
@@ -39,6 +45,7 @@ class UserSchema(BaseModel):
     id: int
     name: str
     avatar_url: Optional[str]
+    email: EmailStr
 
 
 class ProjectSchema(BaseModel):
@@ -46,8 +53,21 @@ class ProjectSchema(BaseModel):
     users: list[UserSchema]
 
 
+class ProjectListItemSchema(BaseModel):
+    id: UUID
+    name: str
+    state: str
+    end_date: datetime
+    start_date: datetime
+    logo_url: Optional[str]
+    leader_id: int
+    product_owner_id: Optional[int]
+    collaborators_ids: list[int]
+    current_sprint: Optional[SprintSchema]
+
+
 class ProjectListResponseSchema(BaseModel):
-    projects: list[ProjectResponseSchema]
+    projects: list[ProjectListItemSchema]
     users: list[UserSchema]
 
 

@@ -1,3 +1,5 @@
+from .daily_sqlalchemy_repository import DailySqlalchemyRepository
+from .event_notes_sqlalchemy_repository import EventNotesSqlalchemyRepository
 from .project_in_memory_repository import ProjectInMemoryRepository
 from .project_sqlalchemy_repository import ProjectSqlalchemyRepository
 from .sprint_sqlalchemy_repository import SprintSqlalchemyRepository

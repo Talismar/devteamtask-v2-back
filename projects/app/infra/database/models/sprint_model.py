@@ -1,12 +1,13 @@
 from enum import Enum
-from typing import Set
+from uuid import UUID
 
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.domain.enums import StateEnum
+
 from ..base_model import BaseModel
-from ..enums import StateEnum
 from ..mixins import CommonMixin, TimestampMixin
 
 
@@ -18,10 +19,10 @@ class SprintModel(CommonMixin, TimestampMixin, BaseModel):
     )
 
     # Relationships
-    project_id: Mapped[int] = mapped_column(
+    project_id: Mapped[UUID] = mapped_column(
         ForeignKey(column="project.id", ondelete="CASCADE")
     )
-    project: Mapped["ProjectModel"] = relationship(back_populates="sprints")  # type: ignore
 
     # References
     event_notes: Mapped["EventNotesModel"] = relationship(back_populates="sprint")
+    project: Mapped["ProjectModel"] = relationship(back_populates="sprints")  # type: ignore

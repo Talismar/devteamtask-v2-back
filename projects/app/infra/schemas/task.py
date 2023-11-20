@@ -18,7 +18,6 @@ class TaskBaseSchema(BaseModel):
 class TaskSchema(TaskBaseSchema):
     id: int
     status: StatusSchema
-    project_id: UUID
     tags: list[TagSchema]
     created_by_user_id: int
     assigned_to_user_id: Optional[int]
@@ -26,6 +25,9 @@ class TaskSchema(TaskBaseSchema):
 
 class TaskPostRequestSchema(TaskBaseSchema):
     status_id: int
+    tags_ids: list[int]
+    sprint_id: Optional[int] = None
+    assigned_to_user_id: Optional[int]
     project_id: UUID
 
 
@@ -33,6 +35,7 @@ class TaskPartialUpdateRequestSchema(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     priority: Optional[int] = None
+    sprint_id: Optional[int] = None
     status_id: Optional[int] = None
     tags_ids: Optional[list[int]] = None
     assigned_to_user_id: Optional[int] = None

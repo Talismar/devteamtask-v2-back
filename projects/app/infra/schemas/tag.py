@@ -12,6 +12,7 @@ class TagBaseSchema(BaseModel):
 
 class TagSchema(TagBaseSchema):
     id: int
+    name: str
 
 
 class TagPostRequestSchema(TagBaseSchema):

@@ -1,2 +1,10 @@
 Authentication info: Date 2023-11-08 12:44:43.251838 Username nunes.una@gmail.com
 Authentication info: Date 2023-11-08 12:46:26.476481 Username nunes.una@gmail.com
+Authentication info: Date 2023-11-08 16:17:05.030733 Username nunes.una@gmail.com
+Authentication info: Date 2023-11-08 16:17:08.590870 Username nunes.una@gmail.com
+Authentication info: Date 2023-11-08 16:36:45.826676 Username antonio.una@gmail.com
+Authentication info: Date 2023-11-08 16:36:55.709457 Username antonio.una@gmail.com
+Authentication info: Date 2023-11-08 18:41:19.066645 Username antonio.una@gmail.com
+Authentication info: Date 2023-11-09 16:01:55.365528 Username antonio.una@gmail.com
+Authentication info: Date 2023-11-09 16:02:54.855532 Username antonio.una@gmail.com
+Authentication info: Date 2023-11-10 16:30:57.525600 Username antonio.una@gmail.com

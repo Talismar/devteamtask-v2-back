@@ -1,7 +1,8 @@
-from app.application.interfaces.repositories import TagRepository
-from app.infra.database.models.tag_model import TagModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+
+from app.application.repositories import TagRepository
+from app.infra.database.models.tag_model import TagModel
 
 
 class TagSqlalchemyRepository(TagRepository):
@@ -29,7 +30,7 @@ class TagSqlalchemyRepository(TagRepository):
         return data
 
     def get_by_id(self, id: int):
-        data = self.__session.query(TagModel).get(id)
+        data = self.__session.get(TagModel, id)
         return data
 
     def delete(self, id: int):
