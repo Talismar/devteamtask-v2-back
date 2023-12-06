@@ -15,7 +15,7 @@ from ..mixins import CommonMixin
 
 
 class ProjectModel(CommonMixin, BaseModel):
-    id: Mapped[UUID] = mapped_column(primary_key=True, unique=True, default=uuid1)
+    id: Mapped[UUID] = mapped_column(primary_key=True, unique=True, default=uuid1)  # type: ignore
     name: Mapped[str] = mapped_column(String(length=120))
     start_date: Mapped[datetime] = mapped_column(default=func.now())
     end_date: Mapped[datetime]
@@ -25,20 +25,22 @@ class ProjectModel(CommonMixin, BaseModel):
     logo_url: Mapped[Optional[str]] = mapped_column(String(length=120))
     leader_id: Mapped[int]
     product_owner_id: Mapped[int] = mapped_column(nullable=True)
-    collaborators_ids: Mapped[Set["ProjectCollaboratorModel"]] = relationship()
+    collaborators_ids: Mapped[Set["ProjectCollaboratorModel"]] = relationship()  # type: ignore
 
     # Relationships
-    status: Mapped[Set["StatusModel"]] = relationship(  # type: ignore # noqa: F821
-        secondary=ProjectStatusModel, back_populates="projects"
+    status: Mapped[Set["StatusModel"]] = relationship(  # type: ignore
+        secondary=ProjectStatusModel,
+        back_populates="projects",
+        # order_by="StatusModel.id"
     )
-    tags: Mapped[Set["TagModel"]] = relationship(  # type: ignore # noqa: F821
+    tags: Mapped[Set["TagModel"]] = relationship(  # type: ignore
         secondary=ProjectTagModel, back_populates="projects"
     )
 
     # References
-    tasks: Mapped[Set["TaskModel"]] = relationship(  # type: ignore # noqa: F821
+    tasks: Mapped[Set["TaskModel"]] = relationship(  # type: ignore
         back_populates="project", cascade="all, delete-orphan"
     )
-    sprints: Mapped[Set["SprintModel"]] = relationship(  # type: ignore # noqa: F821
+    sprints: Mapped[Set["SprintModel"]] = relationship(  # type: ignore
         back_populates="project", cascade="all, delete-orphan"
     )

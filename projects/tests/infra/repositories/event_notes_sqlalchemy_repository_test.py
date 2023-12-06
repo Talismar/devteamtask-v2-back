@@ -15,6 +15,7 @@ class TestEventNotesSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         self.sut = EventNotesSqlalchemyRepository(self.session)
 
     def test_event_notes_create(self):
+        "Deve ser possivel criar uma event note apartir do id de uma sprint"
         project = self.make_project()
         sprint = self.make_sprint(project.data_created["id"])
 
@@ -34,6 +35,7 @@ class TestEventNotesSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
             self.make_event_notes(sprint_id=15)
 
     def test_get_by_sprint_id(self):
+        "Deve ser possivel obter os dado de uma event note aparti do seu id"
         project = self.make_project()
         sprint = self.make_sprint(project.data_created["id"])
 
@@ -54,6 +56,7 @@ class TestEventNotesSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
             self.sut.get_by_sprint_id(1)
 
     def test_partial_update(self):
+        "Deve ser possivel atualizar os dados de uma event note"
         project = self.make_project()
         sprint = self.make_sprint(project.data_created["id"])
 

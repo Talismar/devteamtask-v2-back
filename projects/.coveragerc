@@ -8,3 +8,4 @@ omit =
     */abstract*.py
     */errors/*
     */domain/*
+    */app/main/configuration/test.py

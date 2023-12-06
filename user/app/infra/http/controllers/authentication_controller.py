@@ -1,8 +1,5 @@
 from json.decoder import JSONDecodeError
 
-from fastapi import BackgroundTasks, Depends, HTTPException, Request
-from fastapi.responses import RedirectResponse
-
 from app.application.use_cases import (
     AuthenticationByProviderUseCase,
     AuthenticationGenerateTokensUseCase,
@@ -24,6 +21,8 @@ from app.infra.schemas.authentication import (
     AuthenticationRefreshTokenPostResponseSchema,
 )
 from app.infra.utils.client_github import ClientGithub
+from fastapi import BackgroundTasks, Depends, HTTPException, Request
+from fastapi.responses import RedirectResponse
 
 
 async def authentication_token(
@@ -77,12 +76,14 @@ def refresh_token(
 
 
 def github_auth(
+    request: Request,
     code: str | None = None,
     state: str | None = None,
     use_case: AuthenticationByProviderUseCase = Depends(
         make_authentication_by_provider_use_case
     ),
 ):
+    print(code, state, request.scope)
     response = RedirectResponse(str(settings.FRONT_END_URL) + "login")
     with ClientGithub() as github_client:
         try:
@@ -94,7 +95,7 @@ def github_auth(
         user_info_response_json = github_client.get_profile_info(
             oauth_response_json["access_token"]
         )
-
+        print(oauth_response_json)
         if user_info_response_json["email"] is None:
             response.set_cookie(
                 "error", "Email not visible make it visible to continue"

@@ -15,6 +15,7 @@ class TestTaskSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         self.sut = TaskSqlalchemyRepository(self.session)
 
     def test_task_create(self):
+        "Deve ser possivel criar uma tarefa"
         project = self.make_project()
         project_id = project.data_created["id"]
 
@@ -34,6 +35,7 @@ class TestTaskSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         assert task["status"]["name"] == "TO DO"
 
     def test_task_get_by_id(self):
+        "Deve ser possivel obter os dados de uma tarefa pelo seu id"
         task = self.make_task()
 
         task_retrieve = self.sut.get_by_id(task.data_created["id"])
@@ -42,6 +44,7 @@ class TestTaskSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         assert task_retrieve.status.name == "TO DO"
 
     def test_partial_update(self):
+        "Deve ser possivel atualizar os dados de uma tarefa"
         task = self.make_task()
 
         description_to_update = self.fake.name()

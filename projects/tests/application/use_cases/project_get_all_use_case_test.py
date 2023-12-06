@@ -15,6 +15,8 @@ class TestProjectGetAllCase(ProjectBaseTest):
         self.sut = ProjectGetAllUseCase(self.project_repository)
 
     def test_must_be_returns_an_empty_project_and_user_list(self):
+        "Validar se é possivel obter a lista de projetos com todos os projetos que um usuário faz parte"
+
         projects = self.sut.execute(1)
 
         assert "projects" in projects

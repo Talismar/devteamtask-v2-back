@@ -1,0 +1,21 @@
+Repositório
+
+daily
+event_notes
+project
+sprint
+status
+tags
+taks
+
+Use Case
+
+Create
+
+14 | 15
+
+# Metricas de scrum: Gráfico de burnout
+https://microservices.io/patterns/apigateway.html
+Estudar somente como fazer o proxy em vez da api gateway
+Estudar a integração com o github
+Estudar como fazer teste com cypress

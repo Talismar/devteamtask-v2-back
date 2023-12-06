@@ -15,6 +15,7 @@ class TestTagSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         self.sut = TagSqlalchemyRepository(self.session)
 
     def test_create(self):
+        "Deve ser possivel criar um tag"
         tag = self.make_tag("User")
 
         assert tag.data_created.name == "User"
@@ -28,11 +29,13 @@ class TestTagSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         assert tag2.data_created.id == 1
 
     def test_get_all(self):
+        "Deve ser possivel obter a lista de tags"
         tags = self.sut.get_all()
 
         assert tags == []
 
     def test_get_by_id(self):
+        "Deve ser possivel obter os dados de uma tag pelo seu id"
         self.make_tag("User")
 
         tag_retrieve = self.sut.get_by_id(1)
@@ -40,12 +43,14 @@ class TestTagSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         assert tag_retrieve.name == "User"
 
     def test_delete(self):
+        "Deve ser possivel deletar uma tag que não esteja vinculada a nenhum projeto"
         self.make_tag("User")
 
         tag_retrieve = self.sut.delete(1)
         assert tag_retrieve is None
 
     def test_returns_none(self):
+        "Deve retorna none quando tenta busca uma tag que não existe"
         tag_retrieve = self.sut.get_by_id(10)
 
         assert tag_retrieve is None

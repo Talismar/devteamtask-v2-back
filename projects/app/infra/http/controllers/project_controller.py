@@ -41,13 +41,13 @@ def create(
     use_case: ProjectCreateUseCase = Depends(make_project_create),
 ):
     dict_data = {"leader_id": user_id, **data.model_dump(exclude_unset=True)}
-    return use_case.execute(dict_data)
+    return use_case.execute(dict_data)  # type: ignore
 
 
 def get_all(
-    request: Request, use_case: ProjectGetAllUseCase = Depends(make_project_get_all)
+    user_id: Annotated[int, Depends(get_user_id_dependency)],
+    use_case: ProjectGetAllUseCase = Depends(make_project_get_all),
 ):
-    user_id = request.scope.get("user")["id"]
     return use_case.execute(user_id)
 
 
@@ -77,19 +77,19 @@ def partial_update(
     if isinstance(form.logo_url, UploadFile):
         data["logo_url"] = form.logo_url
     if isinstance(form.name, str):
-        data["name"] = form.name
+        data["name"] = form.name  # type: ignore
     if isinstance(form.end_date, datetime):
-        data["end_date"] = form.end_date
+        data["end_date"] = form.end_date  # type: ignore
     if isinstance(form.state, str):
-        data["state"] = form.state
+        data["state"] = form.state  # type: ignore
     if isinstance(form.product_owner_email, str):
-        data["product_owner_email"] = form.product_owner_email
+        data["product_owner_email"] = form.product_owner_email  # type: ignore
 
     if len(data.keys()) == 0:
         raise HTTPException(status_code=400)
 
     try:
-        return use_case.execute(id, data)
+        return use_case.execute(id, data)  # type: ignore
     except ResourceNotFoundException as error:
         raise HTTPException(status_code=404, detail=error.message)
     except Exception as exception:

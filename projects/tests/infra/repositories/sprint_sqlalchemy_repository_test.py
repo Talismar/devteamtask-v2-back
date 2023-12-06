@@ -15,6 +15,7 @@ class TestSprintSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         self.sut = SprintSqlalchemyRepository(self.session)
 
     def test_create(self):
+        "Deve ser possivel criar uma sprint"
         project = self.make_project()
         sprint = self.make_sprint(
             project_id=project.data_created["id"], name="Sprint 1"

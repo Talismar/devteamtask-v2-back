@@ -55,7 +55,7 @@ class ProjectPartialUpdateUseCase:
 
         if len(data_to_update) > 0:
             project_model_updated = self.__project_repository.partial_update(
-                id, data_to_update
+                id, data_to_update  # type: ignore
             )
 
             if (

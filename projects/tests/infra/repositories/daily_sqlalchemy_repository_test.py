@@ -13,6 +13,7 @@ class TestDailySqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         self.sut = DailySqlalchemyRepository(self.session)
 
     def test_create(self):
+        "Deve ser possivel criar uma daily apartir do id de uma sprint que contenha um event note associada"
         project = self.make_project()
         project_id = project.data_created["id"]
         sprint = self.make_sprint(project_id=project_id)
@@ -26,6 +27,7 @@ class TestDailySqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         assert "updated_at" in daily
 
     def test_get_by_id(self):
+        "Deve ser possivel obter os dado de uma daily"
         project = self.make_project()
         project_id = project.data_created["id"]
         sprint = self.make_sprint(project_id=project_id)
@@ -38,6 +40,7 @@ class TestDailySqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         assert daily_retrieve["id"] == 1
 
     def test_partial_update(self):
+        "Deve ser possivel atualizar os dados de uma daily"
         project = self.make_project()
         project_id = project.data_created["id"]
         sprint = self.make_sprint(project_id=project_id)
@@ -52,9 +55,10 @@ class TestDailySqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
             daily["id"], {"note": note_to_update}
         )
 
-        assert daily_retrieve_after_updated["note"] != note_to_create
+        assert daily_retrieve_after_updated["note"] == note_to_update
 
     def test_get_all_by_sprint_id(self):
+        "Deve ser possivel obter todas as daily criadas em uma determinada sprint/event notes"
         project = self.make_project()
         project_id = project.data_created["id"]
         sprint = self.make_sprint(project_id=project_id)
@@ -69,5 +73,6 @@ class TestDailySqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
         assert len(daily_datas) == 1
 
     def test_returns_none(self):
+        "Deve retorna um error ao tentar busca um daily com um id que não existe"
         with pytest.raises(ResourceNotFoundException):
             self.sut.get_by_id(10)
