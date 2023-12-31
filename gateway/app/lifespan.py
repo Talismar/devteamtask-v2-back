@@ -18,5 +18,4 @@ async def lifespan(app: FastAPI) -> AsyncIterator[State]:
         clear_terminal_on_save()
 
     async with AsyncClient(timeout=None) as client:
-        print("AsyncClient")
         yield {"http_client": client}

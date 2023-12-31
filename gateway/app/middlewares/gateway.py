@@ -5,9 +5,10 @@ from starlette.responses import JSONResponse, Response
 
 
 class GatewayMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app, services):
+    def __init__(self, app, services, public_endpoints=[]):
         super().__init__(app)
         self.services = services
+        self.public_endpoints = public_endpoints
 
     async def dispatch(self, request: Request, call_next):
         if request["type"] != "http":
@@ -15,6 +16,7 @@ class GatewayMiddleware(BaseHTTPMiddleware):
 
         path = request.url.path
         query = request.url.query
+        user = request.scope.get("user")
 
         service = None
         if path.startswith("/api/project"):
@@ -28,11 +30,23 @@ class GatewayMiddleware(BaseHTTPMiddleware):
             try:
                 http_client: AsyncClient = request.state.http_client
 
+                raw_body = await request.body()
+                headers = {**request.headers}
+
+                if user is not None:
+                    headers.update(
+                        {
+                            "user_id": str(user["id"]),
+                            "user_name": user["name"],
+                            "user_email": user["email"],
+                        }
+                    )
+
                 response = await http_client.request(
                     request.method,
                     destination_url,
-                    headers=dict(request.headers),
-                    content=await request.body(),
+                    headers=headers,
+                    content=raw_body,
                 )
 
                 return Response(
