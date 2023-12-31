@@ -1,29 +1,36 @@
+from typing import Annotated
+
 from fastapi import BackgroundTasks, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.application.use_cases import (
+    AuthenticationByProviderUseCase,
     UserChangePasswordUseCase,
     UserCreateByProviderUseCase,
     UserCreateUseCase,
+    UserDeleteUseCase,
     UserForgotPasswordUseCase,
     UserMeUseCase,
     UserPartialUpdateUseCase,
     UserResetPasswordByTokenUseCase,
 )
-from app.domain.entities.user import User
 from app.domain.enums import AuthProvidersEnum
 from app.domain.errors import AppBaseException
 from app.infra.configs.local import settings
+from app.infra.factories.make_authentication_use_cases import (
+    make_authentication_by_provider_use_case,
+)
 from app.infra.factories.make_user_use_cases import (
     make_user_change_password_use_case,
     make_user_create_by_provider_use_case,
     make_user_create_use_case,
+    make_user_delete_use_case,
     make_user_forgot_password_use_case,
     make_user_me_use_case,
     make_user_partial_update_use_case,
     make_user_reset_password_by_token_use_case,
 )
-from app.infra.repositories.mapper.user_sqlalchemy_mapper import UserSqlalchemyMapper
+from app.infra.http.dependencies import get_user_id_dependency
 from app.infra.schemas.base import EmailSchema
 from app.infra.schemas.user_schemas import (
     UserChangePasswordRequestSchema,
@@ -53,14 +60,16 @@ def me(request: Request, use_case: UserMeUseCase = Depends(make_user_me_use_case
 
 
 def github_create(
-    request: Request,
     code: str | None = None,
     state: str | None = None,
     use_case: UserCreateByProviderUseCase = Depends(
         make_user_create_by_provider_use_case
     ),
+    auth_use_case: AuthenticationByProviderUseCase = Depends(
+        make_authentication_by_provider_use_case
+    ),
 ):
-    response = RedirectResponse("http://127.0.0.1:3000/signup")
+    response = RedirectResponse(str(settings.FRONT_END_URL) + "/signup")
     with ClientGithub() as github_client:
         try:
             oauth_response_json = github_client.get_tokens(code)
@@ -82,13 +91,18 @@ def github_create(
             use_case.execute(
                 {
                     "auth_provider": AuthProvidersEnum.GITHUB,
-                    "id": user_info_response_json["id"],
                     "email": user_info_response_json["email"],
                     "login": user_info_response_json["login"],
                     "name": user_info_response_json["name"],
                 }
             )
 
+            result = auth_use_case.execute(user_info_response_json["email"])
+
+            query_params = f"?access_token={result['access_token']}&refresh_token={result['refresh_token']}"
+            response = RedirectResponse(
+                url=str(settings.FRONT_END_URL) + "/signup" + query_params
+            )
             response.set_cookie(
                 "success",
                 "User created successfully",
@@ -107,7 +121,15 @@ def partial_update(
     form: UserPartialUpdateParams = Depends(UserPartialUpdateParams),
     use_case: UserPartialUpdateUseCase = Depends(make_user_partial_update_use_case),
 ):
-    dict_data = {"avatar_url": form.avatar_url, "name": form.name}
+    dict_data = {
+        "avatar_url": form.avatar_url,
+        "name": form.name,
+        "notification_state": form.notification_state,
+    }
+
+    if form.is_active is not None:
+        dict_data["is_active"] = form.is_active
+
     try:
         return use_case.execute(user_id, dict_data)  # type: ignore
     except AppBaseException as exception:
@@ -122,7 +144,7 @@ def forgot_password(
     try:
         invite = use_case.execute(data.email)
 
-        front_end_redirect_url = f"{settings.FRONT_END_URL}reset_password"
+        front_end_redirect_url = f"{settings.FRONT_END_URL}reset-password"
         redirect_url = f"{settings.BASE_URL}api/user/invite/{invite['token']}?redirect_url={front_end_redirect_url}"
 
         fast_mail, message = send_email_config(
@@ -141,15 +163,14 @@ def forgot_password(
 
 
 def change_password(
-    request: Request,
+    user_id: Annotated[int, Depends(get_user_id_dependency)],
     data: UserChangePasswordRequestSchema,
     use_case: UserChangePasswordUseCase = Depends(make_user_change_password_use_case),
 ):
     try:
-        request_user: User = request.scope.get("user")  # type: ignore
         return use_case.execute(
             {"old_password": data.old_password, "new_password": data.new_password},
-            request_user,
+            user_id,
         )
     except AppBaseException as exception:
         raise HTTPException(status_code=exception.status_code, detail=exception.message)
@@ -166,3 +187,14 @@ def reset_password_by_token(
         return use_case.execute(dict_data)  # type: ignore
     except AppBaseException as exception:
         raise HTTPException(status_code=exception.status_code, detail=exception.message)
+
+
+def delete(
+    user_id: int, use_case: UserDeleteUseCase = Depends(make_user_delete_use_case)
+):
+    try:
+        return use_case.execute(user_id)
+    except AppBaseException as exception:
+        return HTTPException(
+            status_code=exception.status_code, detail=exception.message
+        )

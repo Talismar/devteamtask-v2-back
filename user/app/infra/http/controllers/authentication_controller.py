@@ -5,11 +5,7 @@ from app.application.use_cases import (
     AuthenticationGenerateTokensUseCase,
     AuthenticationRefreshTokenUseCase,
 )
-from app.domain.errors import (
-    AppBaseException,
-    BadRequestException,
-    UnauthorizedException,
-)
+from app.domain.errors import AppBaseException, UnauthorizedException
 from app.infra.background_tasks import authenticated_user_audit
 from app.infra.configs.local import settings
 from app.infra.factories.make_authentication_use_cases import (
@@ -21,8 +17,9 @@ from app.infra.schemas.authentication import (
     AuthenticationRefreshTokenPostResponseSchema,
 )
 from app.infra.utils.client_github import ClientGithub
-from fastapi import BackgroundTasks, Depends, HTTPException, Request
+from fastapi import BackgroundTasks, Depends, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
+from httpx import Client
 
 
 async def authentication_token(
@@ -59,6 +56,17 @@ async def authentication_token(
 
     try:
         result = use_case.execute(data)  # type: ignore
+
+        if request.query_params.get("redirect") is not None:
+            try:
+                url = request.query_params.get("redirect", "")
+                response = Client().get(url=url, params=result)
+
+                if response.status_code == 200:
+                    return Response(status_code=200)
+            except Exception as exc:
+                return Response(content=str(exc), status_code=400)
+
         return result
     except UnauthorizedException as exception:
         has_error = True
@@ -83,7 +91,6 @@ def github_auth(
         make_authentication_by_provider_use_case
     ),
 ):
-    print(code, state, request.scope)
     response = RedirectResponse(str(settings.FRONT_END_URL) + "login")
     with ClientGithub() as github_client:
         try:
@@ -95,7 +102,7 @@ def github_auth(
         user_info_response_json = github_client.get_profile_info(
             oauth_response_json["access_token"]
         )
-        print(oauth_response_json)
+
         if user_info_response_json["email"] is None:
             response.set_cookie(
                 "error", "Email not visible make it visible to continue"
@@ -103,9 +110,20 @@ def github_auth(
             return response
 
         try:
-            result = use_case.execute(
-                user_info_response_json["email"], user_info_response_json["id"]
-            )
+            result = use_case.execute(user_info_response_json["email"])
+
+            if state is not None:
+                try:
+                    response = Client().get(url=state, params=result)  # type: ignore
+
+                    if response.status_code == 200:
+                        return RedirectResponse(
+                            url=str(settings.FRONT_END_URL) + "/login-cli?sucess=true"
+                        )
+                except Exception as exc:
+                    return RedirectResponse(
+                        url=str(settings.FRONT_END_URL) + "/login-cli?sucess=false"
+                    )
 
             query_params = f"?access_token={result['access_token']}&refresh_token={result['refresh_token']}"
             return RedirectResponse(

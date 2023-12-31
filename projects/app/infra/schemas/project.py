@@ -46,6 +46,7 @@ class UserSchema(BaseModel):
     name: str
     avatar_url: Optional[str]
     email: EmailStr
+    auth_provider: Optional[str]
 
 
 class ProjectSchema(BaseModel):

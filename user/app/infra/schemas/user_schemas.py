@@ -64,6 +64,10 @@ class UserPartialUpdateParams:
         self,
         avatar_url: Union[UploadFile, None] = None,
         name: Union[str, None] = Form(None),
+        notification_state: Union[bool, None] = Form(None),
+        is_active: Union[bool, None] = Form(None),
     ):
         self.name = name
         self.avatar_url = avatar_url
+        self.notification_state = notification_state
+        self.is_active = is_active

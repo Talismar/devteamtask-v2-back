@@ -1,4 +1,3 @@
-# from app.infra.database.associations import ProjectCollaborator
 from app.infra.database.configuration import Session
 from app.infra.database.models import ProjectModel, StatusModel
 

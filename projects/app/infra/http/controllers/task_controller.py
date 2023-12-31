@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import BackgroundTasks, Depends, HTTPException, Path, Request
 from fastapi.encoders import jsonable_encoder
@@ -30,13 +31,12 @@ from ..dependencies.get_user_id_dependency import get_user_id_dependency
 
 async def create(
     request: Request,
+    user_id: Annotated[int, Depends(get_user_id_dependency)],
     background_task: BackgroundTasks,
     data: TaskPostRequestSchema,
     use_case: TaskCreateUseCase = Depends(make_task_create),
 ):
     try:
-        user = request.scope.get("user")
-        user_id = user.get("id")  # type: ignore
         http_client: AsyncClient = request.state.http_client
 
         data_to_create = data.model_dump(exclude_unset=True)
@@ -60,8 +60,12 @@ async def create(
         raise HTTPException(status_code=404, detail=error.message)
 
 
-def get_all(use_case: TaskGetAllUseCase = Depends(make_task_get_all)):
-    return use_case.execute()
+def get_all_by_project_id(
+    project_id: UUID,
+    task_name: None | str = None,
+    use_case: TaskGetAllUseCase = Depends(make_task_get_all),
+):
+    return use_case.execute(project_id, task_name)
 
 
 def get_by_id(

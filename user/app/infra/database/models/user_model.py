@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Set
 
+from sqlalchemy import Boolean
 from sqlalchemy import Enum as SqlAlchemyEnum
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -23,6 +24,6 @@ class UserModel(TimestampMixin, BaseModel):
         SqlAlchemyEnum(AuthProvidersEnum), nullable=True
     )
 
+    phone_number: Mapped[str] = mapped_column(String(32), nullable=True)
     notifications: Mapped[Set["NotificationModel"]] = relationship()
-
-    # phone_number: Mapped[str] = mapped_column(String(32), nullable=True)
+    is_active: Mapped[bool] = mapped_column(default=True)

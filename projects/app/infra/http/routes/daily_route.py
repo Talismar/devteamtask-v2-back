@@ -14,9 +14,10 @@ router = APIRouter(
 router.add_api_route("", daily_controller.create, methods=["POST"], status_code=201)
 router.add_api_route(
     "",
-    daily_controller.get_all,
+    daily_controller.get_all_sprint_id,
     methods=["GET"],
     response_model=list[DailySchema],
+    openapi_extra={},
 )
 router.add_api_route(
     "/{id}",

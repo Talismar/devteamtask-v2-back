@@ -14,16 +14,16 @@ router = APIRouter(
 
 router.add_api_route("", task_controller.create, methods=["POST"], status_code=201)
 router.add_api_route(
-    "",
-    task_controller.get_all,
-    methods=["GET"],
-    response_model=list[TaskSchema],
-)
-router.add_api_route(
     "/dashboard_data",
     task_controller.dashboard_data,
     methods=["GET"],
     response_model=TaskDashboardDataSchema,
+)
+router.add_api_route(
+    "/{project_id}",
+    task_controller.get_all_by_project_id,
+    methods=["GET"],
+    response_model=list[TaskSchema],
 )
 router.add_api_route(
     "/{id}",

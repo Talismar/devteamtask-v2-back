@@ -3,14 +3,17 @@ from uuid import UUID
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Mapped, mapped_column
-from .mixins import CommonMixin
+
 from .base_model import BaseModel
+from .mixins import CommonMixin
 
 ProjectStatusModel = Table(
     "projectstatus",
     BaseModel.metadata,
-    Column("project_id", ForeignKey("project.id"), primary_key=True),
-    Column("status_id", ForeignKey("status.id"), primary_key=True),
+    Column(
+        "project_id", ForeignKey("project.id", ondelete="CASCADE"), primary_key=True
+    ),
+    Column("status_id", ForeignKey("status.id", ondelete="CASCADE"), primary_key=True),
 )
 
 ProjectTagModel = Table(

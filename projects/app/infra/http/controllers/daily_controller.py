@@ -31,7 +31,7 @@ def create(
         raise HTTPException(status_code=404, detail=exception.message)
 
 
-def get_all(
+def get_all_sprint_id(
     sprint_id: Annotated[int, Query()],
     use_case: DailyGetAllBySprintIdUseCase = Depends(make_daily_get_all_by_sprint_id),
 ):
@@ -46,7 +46,6 @@ def get_by_id(
     use_case: DailyGetByIdUseCase = Depends(make_daily_get_by_id),
 ):
     try:
-        print("Getting")
         return use_case.execute(id)
     except AppBaseException as error:
         raise HTTPException(status_code=404, detail=error.message)

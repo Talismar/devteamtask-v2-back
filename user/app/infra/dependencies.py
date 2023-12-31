@@ -4,7 +4,7 @@ from app.infra.configs.local import Session
 
 
 def database_connection():
-    session = scoped_session(Session)
+    session = Session()
     try:
         yield session
     finally:

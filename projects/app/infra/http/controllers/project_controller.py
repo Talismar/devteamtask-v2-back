@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, Path, Request
+from fastapi import Depends, HTTPException, Path
 from fastapi.responses import RedirectResponse
 from starlette.datastructures import UploadFile
 
@@ -93,7 +93,6 @@ def partial_update(
     except ResourceNotFoundException as error:
         raise HTTPException(status_code=404, detail=error.message)
     except Exception as exception:
-        print(exception)
         raise HTTPException(status_code=500, detail="Service email error")
 
 
@@ -148,7 +147,8 @@ def add_collaborator(
 ):
     response = RedirectResponse(settings.FRONT_END_URL)
     try:
-        return use_case.execute(project_id, user_id)
+        use_case.execute(project_id, user_id)
+        return response
     except ResourceNotFoundException as error:
         response.set_cookie("error", error.message)
 

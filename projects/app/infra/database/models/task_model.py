@@ -32,3 +32,6 @@ class TaskModel(CommonMixin, TimestampMixin, BaseModel):
 
     # many to many
     tags: Mapped[Set["TagModel"]] = relationship(secondary=TaskTagModel)
+
+    def __str__(self):
+        return f"{self.id} - {self.name}"

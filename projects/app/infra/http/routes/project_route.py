@@ -5,7 +5,7 @@ from ...schemas.project import (
     ProjectResponseSchema,
     ProjectSchema,
 )
-from ..controllers import project_controller
+from ..controllers import github_integration_controller, project_controller
 from ..dependencies.current_user_dependency import CurrentUserDependency
 
 current_user_dependency = CurrentUserDependency()
@@ -63,4 +63,10 @@ router.add_api_route(
     methods=["PATCH"],
     response_model=ProjectSchema,
     dependencies=[Depends(current_user_dependency)],
+)
+router.add_api_route(
+    "/github/webhooks",
+    github_integration_controller.github_webhooks,
+    methods=["POST"],
+    # include_in_schema=False,
 )

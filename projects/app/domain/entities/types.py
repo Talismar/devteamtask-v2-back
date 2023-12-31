@@ -8,6 +8,7 @@ from app.domain.enums import StateEnum
 class StatusTypes(typing.TypedDict):
     id: int
     name: str
+    order: int
 
 
 class TagTypes(typing.TypedDict):

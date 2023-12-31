@@ -26,7 +26,6 @@ class UserChangePasswordRequestDTO(TypedDict, total=False):
 
 
 class UserCreateByProviderRequestDTO(TypedDict):
-    id: int
     login: str
     name: str | None
     email: str

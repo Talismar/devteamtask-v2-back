@@ -18,6 +18,7 @@ from .notification_mark_as_read_use_case import NotificationMarkAsReadUseCase
 from .user_change_password_use_case import UserChangePasswordUseCase
 from .user_create_by_provider_use_case import UserCreateByProviderUseCase
 from .user_create_use_case import UserCreateUseCase
+from .user_delete_use_case import UserDeleteUseCase
 from .user_forgot_password_use_case import UserForgotPasswordUseCase
 from .user_me_user_case import UserMeUseCase
 from .user_partial_update_use_case import UserPartialUpdateUseCase

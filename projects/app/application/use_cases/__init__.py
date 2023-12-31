@@ -39,3 +39,4 @@ from .task_delete_use_case import TaskDeleteUseCase
 from .task_get_all_use_case import TaskGetAllUseCase
 from .task_get_by_id_use_case import TaskGetByIdUseCase
 from .task_partial_update_use_case import TaskPartialUpdateUseCase
+from .webhook_task_update_status_use_case import WebhookTaskUpdateStatusUseCase

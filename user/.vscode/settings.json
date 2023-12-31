@@ -1,6 +1,6 @@
 {
     "python.testing.pytestArgs": [
-        "tests"
+        "tests", "-s", "--disable-warnings"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true

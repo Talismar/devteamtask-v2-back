@@ -1,7 +1,7 @@
 from typing import Literal
 from uuid import UUID
 
-from sqlalchemy import and_, asc, or_, text, update
+from sqlalchemy import and_, asc, func, or_, text, update
 from sqlalchemy.orm import Session, joinedload
 
 from app.application.repositories import ProjectRepository
@@ -12,6 +12,7 @@ from app.infra.database.models import (
     SprintModel,
     StatusModel,
     TagModel,
+    TaskModel,
 )
 from app.infra.database.utils import attribute_names
 
@@ -23,7 +24,17 @@ class ProjectSqlalchemyRepository(ProjectRepository):
         self.__session = session
 
     def create(self, data):
+        status = set()
+
+        for i, name in enumerate(["TO DO", "DOING", "DONE"], start=1):
+            instance = StatusModel(name=name, order=i)
+            if instance:
+                status.add(instance)
+
+        data.update({"status": status})
+
         new_data = ProjectModel(**data)
+
         try:
             self.__session.add(new_data)
             self.__session.commit()
@@ -35,7 +46,7 @@ class ProjectSqlalchemyRepository(ProjectRepository):
 
     def get_users_data(self, users_ids):
         params = {"users_ids": users_ids}
-        query = "SELECT id, name, email, avatar_url FROM users WHERE id IN :users_ids;"
+        query = "SELECT id, name, email, avatar_url, auth_provider FROM users WHERE id IN :users_ids;"
         result = self.__session.execute(text(query), params)
         results = []
 
@@ -78,7 +89,9 @@ class ProjectSqlalchemyRepository(ProjectRepository):
         return projects
 
     def get_by_id(self, id: UUID):
-        project = self.__session.get(ProjectModel, id)
+        project = (
+            self.__session.query(ProjectModel).filter(ProjectModel.id == id).first()
+        )
 
         if project is not None:
             return ProjectSqlalchemyMapper.toDomain(project)
@@ -158,3 +171,20 @@ class ProjectSqlalchemyRepository(ProjectRepository):
         self.__session.commit()
         self.__session.refresh(project_model)
         return project_model
+
+    def remove_tag(self, project_id, tag_instance):
+        project_instance = self.__session.get(ProjectModel, project_id)
+
+        project_instance.tags.remove(tag_instance)
+        self.__session.commit()
+        self.__session.refresh(project_instance)
+
+        return project_instance
+
+    def remove_status(self, project_id, status_instance):
+        project_instance = self.__session.get(ProjectModel, project_id)
+
+        project_instance.status.remove(status_instance)
+        self.__session.commit()
+        self.__session.refresh(project_instance)
+        return project_instance

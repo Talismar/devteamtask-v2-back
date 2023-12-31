@@ -25,13 +25,13 @@ class ProjectModel(CommonMixin, BaseModel):
     logo_url: Mapped[Optional[str]] = mapped_column(String(length=120))
     leader_id: Mapped[int]
     product_owner_id: Mapped[int] = mapped_column(nullable=True)
-    collaborators_ids: Mapped[Set["ProjectCollaboratorModel"]] = relationship()  # type: ignore
+    collaborators_ids: Mapped[Set["ProjectCollaboratorModel"]] = relationship(cascade="all, delete-orphan")  # type: ignore
 
     # Relationships
     status: Mapped[Set["StatusModel"]] = relationship(  # type: ignore
         secondary=ProjectStatusModel,
         back_populates="projects",
-        # order_by="StatusModel.id"
+        cascade="all, delete",
     )
     tags: Mapped[Set["TagModel"]] = relationship(  # type: ignore
         secondary=ProjectTagModel, back_populates="projects"
@@ -39,8 +39,14 @@ class ProjectModel(CommonMixin, BaseModel):
 
     # References
     tasks: Mapped[Set["TaskModel"]] = relationship(  # type: ignore
-        back_populates="project", cascade="all, delete-orphan"
+        back_populates="project", cascade="all, delete", passive_deletes=True
     )
     sprints: Mapped[Set["SprintModel"]] = relationship(  # type: ignore
-        back_populates="project", cascade="all, delete-orphan"
+        back_populates="project", cascade="all, delete", passive_deletes=True
     )
+
+    def __str__(self):
+        return f"{self.id} - {self.name}"
+
+    def __repr__(self) -> str:
+        return f"__repr__ {self.id} - {self.name}"

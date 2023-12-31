@@ -4,6 +4,9 @@ from app.domain.entities.user import User
 
 
 def get_user_id_dependency(request: Request):
-    user_data: User = request.scope.get("user")  # type: ignore
-    user_id = user_data["id"]
+    user_id = request.headers.get("user_id")
+
+    if isinstance(user_id, str):
+        user_id = int(user_id)
+
     return user_id

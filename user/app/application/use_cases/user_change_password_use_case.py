@@ -1,7 +1,6 @@
 from app.application.dtos import UserChangePasswordRequestDTO
 from app.application.repositories import UserRepository
 from app.application.utils.cryptography import hash_password, verify_password
-from app.domain.entities.user import User
 from app.domain.errors import BadRequestException, ResourceNotFoundException
 
 
@@ -9,8 +8,11 @@ class UserChangePasswordUseCase:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
-    def execute(self, data: UserChangePasswordRequestDTO, request_user: User):
-        user = request_user
+    def execute(self, data: UserChangePasswordRequestDTO, user_id):
+        user = self.user_repository.get_by_id(user_id)
+
+        if user is None:
+            raise ResourceNotFoundException("User")
 
         old_password = data.pop("old_password")
 

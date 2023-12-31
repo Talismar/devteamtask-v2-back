@@ -54,8 +54,11 @@ def validate_invitation_by_token(
     response = RedirectResponse(settings.FRONT_END_URL)
     try:
         result = use_case.execute(token)
-    except AppBaseException as exception:
-        response.set_cookie("error", exception.message)
+    except AppBaseException:
+        response.set_cookie(
+            "error",
+            "Please create your registration in the system to proceed with the operation",
+        )
         return response
 
     if result["invite"]["resource_name"] == "Project":

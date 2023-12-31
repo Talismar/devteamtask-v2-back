@@ -50,3 +50,10 @@ router.add_api_route(
     response_model=UserSchema,
     dependencies=[Depends(current_user_dependency)],
 )
+router.add_api_route(
+    "/{user_id}",
+    user_controller.delete,
+    methods=["DELETE"],
+    status_code=204,
+    dependencies=[Depends(current_user_dependency)],
+)

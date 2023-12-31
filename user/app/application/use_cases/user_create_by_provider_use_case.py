@@ -7,7 +7,7 @@ class UserCreateByProviderUseCase:
         self.user_repository = user_repository
 
     def execute(self, data: UserCreateByProviderRequestDTO):
-        login: str = data.pop("login")
+        login: str = data.pop("login", None)
         name = data.get("name", None)
 
         if name is None:

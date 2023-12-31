@@ -12,22 +12,22 @@ class StatusSqlalchemyRepository(StatusRepository):
     def __init__(self, session: Session) -> None:
         self.__session = session
 
-    def get_or_create(self, data: dict[str, str]):
-        status_already_exists = (
-            self.__session.query(StatusModel)
-            .filter(func.lower(StatusModel.name) == data["name"].lower())
-            .first()
-        )
-        if status_already_exists is not None:
-            return status_already_exists
-        else:
-            new_data = StatusModel(**data)
+    def get_or_create(self, data: dict):
+        # status_already_exists = (
+        #     self.__session.query(StatusModel)
+        #     .filter(func.lower(StatusModel.name) == data["name"].lower())
+        #     .first()
+        # )
+        # if status_already_exists is not None:
+        #     return status_already_exists
+        # else:
+        new_data = StatusModel(**data)
 
-            self.__session.add(new_data)
-            self.__session.commit()
-            self.__session.refresh(new_data)
+        self.__session.add(new_data)
+        self.__session.commit()
+        self.__session.refresh(new_data)
 
-            return new_data
+        return new_data
 
     def get_all(self):
         data = self.__session.query(StatusModel).all()

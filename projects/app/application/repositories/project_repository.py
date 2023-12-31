@@ -54,5 +54,13 @@ class ProjectRepository(ABC):
         pass
 
     @abstractmethod
+    def remove_tag(self, project_id, tag_instance):
+        pass
+
+    @abstractmethod
+    def remove_status(self, project_id, tag_instance):
+        pass
+
+    @abstractmethod
     def save(self, project_model):
         pass

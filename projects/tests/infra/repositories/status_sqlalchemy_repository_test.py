@@ -16,13 +16,13 @@ class TestStatusSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
 
     def test_status_create(self):
         "Deve ser possivel criar um status"
-        status = self.make_status("TO DO")
+        status = self.make_status(1, "TO DO")
 
         assert status.data_created.name == "TO DO"
 
     def test_status_get_by_id(self):
         "Deve ser possivel obter os dados de um status pelo seu id"
-        self.make_status("TO DO")
+        self.make_status(1, "TO DO")
 
         status_retrieve = self.sut.get_by_id(1)
         assert status_retrieve.id == 1

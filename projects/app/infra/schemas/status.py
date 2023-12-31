@@ -1,19 +1,18 @@
-from typing import Optional, Union
+from typing import Optional
 from uuid import UUID
 
-from fastapi import Form
 from pydantic import BaseModel
-
-# from .task import TaskSchema
 
 
 class StatusBaseSchema(BaseModel):
     name: str
+    order: int
 
 
-class StatusSchema(StatusBaseSchema):
+class StatusSchema(BaseModel):
     id: int
     name: str
+    order: int
 
 
 class StatusPostRequestSchema(StatusBaseSchema):
@@ -22,11 +21,3 @@ class StatusPostRequestSchema(StatusBaseSchema):
 
 class StatusPartialUpdateRequestSchema(BaseModel):
     name: Optional[str] = None
-
-
-class StatusPartialUpdateParams:
-    def __init__(
-        self,
-        name: Union[str, None] = Form(None),
-    ):
-        self.name = name

@@ -37,8 +37,20 @@ class TaskSqlalchemyRepository(TaskRepository):
                 e.args[0].split("is not present in table")[1].split('"')[1].capitalize()
             )
 
-    def get_all(self):
-        data = self.__session.query(TaskModel).all()
+    def get_all_by_project_id(self, project_id, task_name):
+        if task_name is not None:
+            data = (
+                self.__session.query(TaskModel)
+                .filter(
+                    TaskModel.project_id == project_id,
+                    TaskModel.name.icontains(task_name),
+                )
+                .all()
+            )
+        else:
+            data = (
+                self.__session.query(TaskModel).filter_by(project_id=project_id).all()
+            )
         return data
 
     def get_by_id(self, id: int):
@@ -53,12 +65,19 @@ class TaskSqlalchemyRepository(TaskRepository):
         if task_instance is None:
             raise ResourceNotFoundException("Task")
 
-        if tags_ids is not None and len(tags_ids) > 0:
-            tags_instance = (
-                self.__session.query(TagModel).filter(TagModel.id.in_(tags_ids)).all()
-            )
+        if tags_ids is not None:
+            if len(tags_ids) > 0:
+                tags_instance = (
+                    self.__session.query(TagModel)
+                    .filter(TagModel.id.in_(tags_ids))
+                    .all()
+                )
 
-            [task_instance.tags.add(tag) for tag in tags_instance]
+                for tag in tags_instance:
+                    task_instance.tags.add(tag)
+
+            elif len(tags_ids) == 0:
+                task_instance.tags.clear()
 
         for key, value in data.items():
             setattr(task_instance, key, value)
@@ -67,6 +86,18 @@ class TaskSqlalchemyRepository(TaskRepository):
         self.__session.refresh(task_instance)
 
         return task_instance
+
+    def update_status_by_id_and_project_id(self, task_id, project_id, status):
+        task_instance = self.get_by_id(task_id)
+
+        if task_instance is not None and project_id == task_instance.project_id:
+            status_instance = self.get_status_by_name(status)
+            task_instance.status = status_instance
+
+            self.__session.commit()
+            self.__session.refresh(task_instance)
+
+            return task_instance
 
     def delete(self, id: int):
         data = self.__session.get(TaskModel, id)

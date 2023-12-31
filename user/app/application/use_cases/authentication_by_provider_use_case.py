@@ -9,7 +9,7 @@ class AuthenticationByProviderUseCase:
         self.user_repository = user_repository
         self.auth_jwt = auth_jwt
 
-    def execute(self, email: str, id: int) -> AuthenticationTokensResponseDTO:
+    def execute(self, email: str) -> AuthenticationTokensResponseDTO:
         user_storaged = self.user_repository.get_by_email(email)
 
         if user_storaged is None:

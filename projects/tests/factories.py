@@ -62,13 +62,13 @@ class FactoriesMixinToTesting:
 
         return MakeResourceReturn(data_to_create, data_created)
 
-    def make_status(self, name=None):
+    def make_status(self, order: int, name=None):
         repository = StatusSqlalchemyRepository(self.session)
 
-        data_to_create = {"name": self.fake.name()}
+        data_to_create = {"name": self.fake.name(), "order": order}
 
         data_created = repository.get_or_create(
-            {"name": name} if name is not None else data_to_create
+            {"name": name, "order": order} if name is not None else data_to_create
         )
 
         return MakeResourceReturn(data_to_create, data_created)

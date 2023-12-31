@@ -1,4 +1,5 @@
 from datetime import date as datetime_date
+from datetime import datetime
 from typing import Any, Optional, Union
 from uuid import UUID
 
@@ -19,6 +20,9 @@ class TaskSchema(TaskBaseSchema):
     id: int
     status: StatusSchema
     tags: list[TagSchema]
+    sprint_id: Optional[int]
+    created_at: datetime
+    updated_at: datetime
     created_by_user_id: int
     assigned_to_user_id: Optional[int]
 
@@ -27,7 +31,7 @@ class TaskPostRequestSchema(TaskBaseSchema):
     status_id: int
     tags_ids: list[int]
     sprint_id: Optional[int] = None
-    assigned_to_user_id: Optional[int]
+    assigned_to_user_id: Optional[int] = None
     project_id: UUID
 
 

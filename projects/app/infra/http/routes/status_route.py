@@ -10,7 +10,13 @@ router = APIRouter(
     prefix="/status", dependencies=[Depends(current_user_dependency)], tags=["status"]
 )
 
-router.add_api_route("", status_controller.create, methods=["POST"], status_code=201)
+router.add_api_route(
+    "",
+    status_controller.create,
+    methods=["POST"],
+    response_model=StatusSchema,
+    status_code=201,
+)
 router.add_api_route(
     "",
     status_controller.get_all,

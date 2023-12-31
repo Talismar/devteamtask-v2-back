@@ -4,6 +4,7 @@ from app.application.use_cases import (
     UserChangePasswordUseCase,
     UserCreateByProviderUseCase,
     UserCreateUseCase,
+    UserDeleteUseCase,
     UserForgotPasswordUseCase,
     UserMeUseCase,
     UserPartialUpdateUseCase,
@@ -57,4 +58,10 @@ def make_user_partial_update_use_case(session=Depends(database_connection)):
 
 def make_user_me_use_case():
     use_case = UserMeUseCase(storage_utils)
+    return use_case
+
+
+def make_user_delete_use_case(session=Depends(database_connection)):
+    repository = UserSqlalchemyRepository(session)
+    use_case = UserDeleteUseCase(repository)
     return use_case

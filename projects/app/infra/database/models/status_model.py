@@ -10,9 +10,12 @@ from ..mixins import CommonMixin
 
 class StatusModel(CommonMixin, BaseModel):
     name: Mapped[str] = mapped_column(String(length=24))
+    order: Mapped[int]
 
     projects: Mapped[Set["ProjectModel"]] = relationship(
-        secondary=ProjectStatusModel, back_populates="status"
+        secondary=ProjectStatusModel,
+        back_populates="status",
+        passive_deletes=True,
     )
 
     # References

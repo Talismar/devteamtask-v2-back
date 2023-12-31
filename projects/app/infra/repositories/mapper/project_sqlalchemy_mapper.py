@@ -18,8 +18,8 @@ class ProjectSqlalchemyMapper:
             "product_owner_id": raw.product_owner_id,
             "collaborators_ids": set(row.user_id for row in raw.collaborators_ids),
             "status": [
-                {"id": row.id, "name": row.name}
-                for row in sorted(raw.status, key=lambda status: status.id)
+                {"id": row.id, "name": row.name, "order": row.order}
+                for row in sorted(raw.status, key=lambda status: status.order)
             ],
             "tags": [{"id": row.id, "name": row.name} for row in raw.tags],
             "tasks": [TaskSqlalchemyMapper.toDomain(row) for row in raw.tasks],

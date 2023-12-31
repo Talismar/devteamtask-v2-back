@@ -7,9 +7,10 @@ from .base import AppBaseSettings
 
 
 class LocalSettings(AppBaseSettings):
-    AUTHJWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    AUTHJWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 10
     AUTHJWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 2
     AUTHJWT_ALGORITHM: str = "HS256"
+    USER_TOKEN_FOR_RESET_DB: str
 
     DATABASE_URL: str
 
@@ -22,5 +23,5 @@ def get_settings():
 settings = get_settings()
 
 # ORM settings
-engine = create_engine(settings.DATABASE_URL, pool_size=30, max_overflow=0)
+engine = create_engine(settings.DATABASE_URL)
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)

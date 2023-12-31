@@ -40,6 +40,7 @@ class TagRequestDTO(TypedDict, total=False):
 class StatusRequestDTO(TypedDict, total=False):
     project_id: UUID
     name: str
+    order: int
 
 
 class TaskCreateRequestDTO(TypedDict, total=False):

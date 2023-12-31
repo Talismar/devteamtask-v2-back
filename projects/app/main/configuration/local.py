@@ -9,6 +9,7 @@ class LocalSettings(AppBaseSettings):
     AUTHJWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     AUTHJWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 2
     AUTHJWT_ALGORITHM: str = "HS256"
+    USER_TOKEN_FOR_RESET_DB: str
 
     DATABASE_URL: str
 

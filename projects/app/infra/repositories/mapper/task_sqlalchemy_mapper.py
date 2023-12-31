@@ -15,6 +15,10 @@ class TaskSqlalchemyMapper:
             "sprint_id": raw.sprint_id,
             "created_at": raw.created_at,
             "updated_at": raw.updated_at,
-            "status": {"id": raw.status.id, "name": raw.status.name},
+            "status": {
+                "id": raw.status.id,
+                "name": raw.status.name,
+                "order": raw.status.order,
+            },
             "tags": [{"id": row.id, "name": row.name} for row in raw.tags],
         }

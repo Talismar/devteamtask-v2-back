@@ -11,6 +11,7 @@ class AppBaseSettings(BaseSettings):
     FRONT_END_URL: AnyHttpUrl
     USER_SERVICE_URL: AnyHttpUrl
     ENV: str
+    GITHUB_WEBHOOK_SECRET: str
 
     BACKEND_CORS_ORIGINS: list[Url] = [
         Url("http://localhost"),

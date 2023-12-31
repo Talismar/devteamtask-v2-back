@@ -60,10 +60,10 @@ class UserSqlalchemyRepository(UserRepository):
         return UserSqlalchemyMapper.toDomain(updated_data[0])
 
     def delete(self, id):
-        user_mode = self.session.get(UserModel, id)
+        user = self.session.get(UserModel, id)
 
-        if user_mode is not None:
+        if user is not None:
             raise ResourceNotFoundException("User")
 
-        self.session.delete(user_mode)
+        self.session.delete(user)
         self.session.commit()

@@ -9,7 +9,7 @@ from app.application.use_cases import (
     StatusGetAllUseCase,
     StatusGetByIdUseCase,
 )
-from app.domain.errors import ResourceNotFoundException
+from app.domain.errors import AppBaseException, ResourceNotFoundException
 from app.infra.factories import (
     make_status_create,
     make_status_delete,
@@ -23,8 +23,11 @@ def create(
     data: StatusPostRequestSchema,
     use_case: StatusCreateUseCase = Depends(make_status_create),
 ):
-    dict_data = data.model_dump()
-    return use_case.execute(dict_data)
+    try:
+        dict_data = data.model_dump()
+        return use_case.execute(dict_data)
+    except AppBaseException as exception:
+        raise HTTPException(status_code=exception.status_code, detail=exception.message)
 
 
 def get_all(use_case: StatusGetAllUseCase = Depends(make_status_get_all)):

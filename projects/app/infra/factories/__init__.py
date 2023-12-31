@@ -39,3 +39,4 @@ from .make_task_delete import make_task_delete
 from .make_task_get_all import make_task_get_all
 from .make_task_get_by_id import make_task_get_by_id
 from .make_task_partial_update import make_task_partial_update
+from .make_webhook_task_update_status import make_webhook_task_update_status
