@@ -163,7 +163,6 @@ cython_debug/
 tmp
 
 # env files
-*.env*
 
 # development files
 development_notes.md
