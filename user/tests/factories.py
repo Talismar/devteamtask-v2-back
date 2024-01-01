@@ -8,9 +8,9 @@ from app.infra.repositories import (
 )
 
 
-class FactoriesToIntegrationTestingMixin:
+class FactoriesMixin:
     def __call__(self, *args, **kwargs):
-        self.fake: Faker
+        self.faker: Faker
         self.session: Session
 
     def make_user(self):

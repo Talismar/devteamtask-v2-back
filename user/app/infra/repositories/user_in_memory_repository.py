@@ -7,7 +7,7 @@ from app.domain.entities.user import User
 class UserInMemoryRepository(UserRepository):
     def __init__(self):
         self.database: list[User] = []
-        self.fake = Faker()
+        self.faker = Faker()
 
     def list_all(self):
         return self.database
@@ -17,8 +17,8 @@ class UserInMemoryRepository(UserRepository):
 
         user: User = {
             "id": id,
-            "updated_at": self.fake.date_time(),
-            "created_at": self.fake.date_time(),
+            "updated_at": self.faker.date_time(),
+            "created_at": self.faker.date_time(),
             "auth_provider": None,
             "email": data["email"],
             "password": data["password"],

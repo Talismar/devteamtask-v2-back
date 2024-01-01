@@ -16,7 +16,7 @@ class TestStatusGetByIdUseCase(StatusBaseTest):
     def test_get_by_id(self):
         "Deve ser possivel obter um status por id"
 
-        status = self.make_status("To do")
+        status = self.make_status(1, "To do")
         status_id = status.data_created.id
 
         status_retrieve = self.sut.execute(status_id)

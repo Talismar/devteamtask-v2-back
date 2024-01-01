@@ -11,7 +11,7 @@ from tests.base_classes import StatusBaseTest
 class TestStatusGetAllUseCase(StatusBaseTest):
     def test_get_all(self):
         "Deve ser possivel obter todos os status"
-        self.make_status("To do")
+        self.make_status(1, "To do")
 
         self.sut = StatusGetAllUseCase(self.status_repository)
         status_list = self.sut.execute()

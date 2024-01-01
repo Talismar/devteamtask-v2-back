@@ -2,7 +2,6 @@ import json
 
 from faker import Faker
 from sqlalchemy import text
-from sqlalchemy.orm import scoped_session
 
 from app.infra.database.base_model import BaseModel
 from app.infra.database.models import *
@@ -13,21 +12,23 @@ class BaseTest:
     def setup_method(self, method):
         BaseModel.metadata.create_all(bind=engine)
         self.fake = Faker()
-        self.session = scoped_session(Session)
+        self.session = Session()
 
         sql = text(
             """
                 create table if not exists users
                 (
-                    id                 serial
-                        primary key,
+                    id                 serial primary key,
                     name               varchar(120) not null,
-                    email              varchar(120) not null
-                        unique,
-                    password           varchar      not null,
+                    email              varchar(120) not null unique,
+                    password           varchar not null,
                     avatar_url         varchar,
-                    created_at         timestamp    not null,
-                    updated_at         timestamp    not null
+                    notification_state boolean default true,
+                    auth_provider      varchar,
+                    phone_number       varchar(32),
+                    is_active          boolean default true,
+                    created_at         timestamp not null,
+                    updated_at         timestamp not null
                 )
             """
         )

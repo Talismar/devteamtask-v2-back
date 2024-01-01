@@ -39,10 +39,10 @@ class ProjectModel(CommonMixin, BaseModel):
 
     # References
     tasks: Mapped[Set["TaskModel"]] = relationship(  # type: ignore
-        back_populates="project", cascade="all, delete", passive_deletes=True
+        back_populates="project", cascade="all, delete-orphan", passive_deletes=True
     )
     sprints: Mapped[Set["SprintModel"]] = relationship(  # type: ignore
-        back_populates="project", cascade="all, delete", passive_deletes=True
+        back_populates="project", cascade="all, delete-orphan", passive_deletes=True
     )
 
     def __str__(self):

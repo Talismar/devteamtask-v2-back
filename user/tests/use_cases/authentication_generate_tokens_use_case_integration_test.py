@@ -37,5 +37,5 @@ class TestAuthenticationGenerateTokensUseCase(BaseTest):
     def test_it_must_return_an_error_for_user_that_does_not_exist(self):
         with pytest.raises(UnauthorizedException, match="Account already exists"):
             self.sut.execute(
-                {"email": self.fake.email(), "password": self.fake.password()}
+                {"email": self.faker.email(), "password": self.faker.password()}
             )

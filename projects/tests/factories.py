@@ -42,9 +42,9 @@ class FactoriesMixinToTesting:
 
         status = set(
             (
-                self.make_status("TO DO").data_created,
-                self.make_status("DOING").data_created,
-                self.make_status("DONE").data_created,
+                self.make_status(1, "TO DO").data_created,
+                self.make_status(2, "DOING").data_created,
+                self.make_status(3, "DONE").data_created,
             )
         )
 
@@ -95,7 +95,7 @@ class FactoriesMixinToTesting:
             "created_by_user_id": 1,
             "description": self.fake.name(),
             "name": self.fake.name(),
-            "status_id": 1,
+            "status_id": project.data_created["status"][0]["id"],
             "priority": 1,
             **kwargs,
         }

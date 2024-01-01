@@ -19,4 +19,6 @@ class StatusModel(CommonMixin, BaseModel):
     )
 
     # References
-    tasks: Mapped[Set["TaskModel"]] = relationship(back_populates="status")
+    tasks: Mapped[Set["TaskModel"]] = relationship(
+        back_populates="status", cascade="all, delete-orphan"
+    )

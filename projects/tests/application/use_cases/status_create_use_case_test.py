@@ -15,7 +15,7 @@ class TestStatusCreateUseCase(StatusBaseTest):
         project_id = project.data_created["id"]
 
         name = "User"
-        status = self.sut.execute({"name": name, "project_id": project_id})
+        status = self.sut.execute({"name": name, "project_id": project_id, "order": 1})
 
         assert status.name == name
 
@@ -24,4 +24,4 @@ class TestStatusCreateUseCase(StatusBaseTest):
 
         with pytest.raises(ResourceNotFoundException):
             name = "User"
-            self.sut.execute({"name": name, "project_id": uuid1()})
+            self.sut.execute({"name": name, "project_id": uuid1(), "order": 1})

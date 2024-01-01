@@ -25,7 +25,7 @@ class TestTaskSqlalchemyRepository(FactoriesMixinToTesting, BaseTest):
                 "created_by_user_id": 1,
                 "description": "Description",
                 "name": "Name",
-                "status_id": 1,
+                "status_id": project.data_created["status"][0]["id"],
                 "priority": 1,
             },
             [],

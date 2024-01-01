@@ -1,16 +1,25 @@
 from datetime import datetime, timedelta
+from unittest.mock import Mock
 
 from app.application.use_cases import ProjectCreateUseCase
 from tests.base_classes import ProjectBaseTest
 
 
+class EmailSender:
+    def send(self, to_email, project_id, template):
+        pass
+
+
 class TestProjectCreateUseCase(ProjectBaseTest):
     def test_project_create_use_case(self):
-        self.make_status("TO DO")
-        self.make_status("DOING")
-        self.make_status("DONE")
+        self.make_status(1, "TO DO")
+        self.make_status(2, "DOING")
+        self.make_status(3, "DONE")
+        email_sender_mock = Mock(spec=EmailSender)
 
-        self.sut = ProjectCreateUseCase(self.project_repository, self.status_repository)
+        self.sut = ProjectCreateUseCase(
+            self.project_repository, self.status_repository, email_sender_mock
+        )
 
         end_date = self.fake.date_time_between(
             start_date=datetime.now(), end_date=datetime.now() + timedelta(days=30)

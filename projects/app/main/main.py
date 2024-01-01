@@ -13,13 +13,10 @@ from app.infra.database.models import *
 
 from .configuration.local import settings
 from .lifespan import lifespan
-
-# from .load_initial_data import create_status_initial
 from .make_routes import router
 
 # BaseModel.metadata.drop_all(bind=engine)
 # BaseModel.metadata.create_all(bind=engine)
-# create_status_initial()
 
 app = FastAPI(
     docs_url="/api/project/docs",

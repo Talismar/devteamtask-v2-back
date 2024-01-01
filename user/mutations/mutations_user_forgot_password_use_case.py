@@ -135,32 +135,6 @@ def execute(self, email: str):
     return invite
 
 
-# hash=ec9212a7cea53ec1
-@mg.mutant_of(
-    "UserForgotPasswordUseCase.execute", "USERFORGOTPASSWORDUSECASE.EXECUTE_5"
-)
-def execute(self, email: str):
-    user_storaged = self.user_repository.get_by_email(email)
-
-    if user_storaged is None:
-        raise ResourceNotFoundException("User")
-
-    current_date = datetime.now()
-    one_day = timedelta(days=2)
-    expiration_date = current_date + one_day
-
-    invite = self.invite_repository.create(
-        {
-            "resource_name": "User",
-            "resource_id": str(user_storaged["id"]),
-            "expiration_date": expiration_date,
-            "email": email,
-        }
-    )
-
-    return invite
-
-
 # hash=2234f6bb2d37dca8
 @mg.mutant_of(
     "UserForgotPasswordUseCase.execute", "USERFORGOTPASSWORDUSECASE.EXECUTE_6"
@@ -174,32 +148,6 @@ def execute(self, email: str):
     current_date = datetime.now()
     one_day = timedelta(days=1)
     expiration_date = None
-
-    invite = self.invite_repository.create(
-        {
-            "resource_name": "User",
-            "resource_id": str(user_storaged["id"]),
-            "expiration_date": expiration_date,
-            "email": email,
-        }
-    )
-
-    return invite
-
-
-# hash=2ae258e8dbca66e0
-@mg.mutant_of(
-    "UserForgotPasswordUseCase.execute", "USERFORGOTPASSWORDUSECASE.EXECUTE_7"
-)
-def execute(self, email: str):
-    user_storaged = self.user_repository.get_by_email(email)
-
-    if user_storaged is None:
-        raise ResourceNotFoundException("User")
-
-    current_date = datetime.now()
-    one_day = timedelta(days=1)
-    expiration_date = current_date - one_day
 
     invite = self.invite_repository.create(
         {

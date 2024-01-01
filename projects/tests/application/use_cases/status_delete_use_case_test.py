@@ -16,7 +16,7 @@ class TestStatusDeleteUseCase(StatusBaseTest):
     def test_delete(self):
         "Deve ser possivel deletar um status"
 
-        status = self.make_status("To do")
+        status = self.make_status(1, "To do")
         status_id = status.data_created.id
 
         status_deleted = self.sut.execute(status_id)

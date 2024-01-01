@@ -9,8 +9,8 @@ class TestUserRepositoryIntegration(BaseTest):
         self.sut = UserSqlalchemyRepository(self.session)
 
     def test_it_must_be_possible_to_obtain_the_data_of_a_registered_user(self):
-        name = self.fake.name()
-        email = self.fake.email()
+        name = self.faker.name()
+        email = self.faker.email()
         id = 1
 
         self.sut.create(
@@ -30,8 +30,8 @@ class TestUserRepositoryIntegration(BaseTest):
     def test_must_return_none_when_the_user_does_not_exist(
         self,
     ):
-        name = self.fake.name()
-        email = self.fake.email()
+        name = self.faker.name()
+        email = self.faker.email()
 
         self.sut.create(
             {
