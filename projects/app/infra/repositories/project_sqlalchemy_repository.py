@@ -1,9 +1,6 @@
 from typing import Literal
 from uuid import UUID
 
-from sqlalchemy import and_, asc, func, or_, text, update
-from sqlalchemy.orm import Session, joinedload
-
 from app.application.repositories import ProjectRepository
 from app.domain.errors import ResourceNotFoundException
 from app.infra.database.models import (
@@ -15,6 +12,8 @@ from app.infra.database.models import (
     TaskModel,
 )
 from app.infra.database.utils import attribute_names
+from sqlalchemy import and_, asc, func, or_, text, update
+from sqlalchemy.orm import Session, joinedload
 
 from .mapper.project_sqlalchemy_mapper import ProjectSqlalchemyMapper
 
@@ -26,7 +25,7 @@ class ProjectSqlalchemyRepository(ProjectRepository):
     def create(self, data):
         status = set()
 
-        for i, name in enumerate(["TO DO", "DOING", "DONE"], start=1):
+        for i, name in enumerate(["To Do", "Doing", "Done"], start=1):
             instance = StatusModel(name=name, order=i)
             if instance:
                 status.add(instance)

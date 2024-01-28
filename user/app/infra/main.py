@@ -1,14 +1,13 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from sqlalchemy import create_engine
-
 from app.infra.configs.local import Session, engine, settings
 from app.infra.database import BaseModel, InviteModel, NotificationModel, UserModel
 from app.infra.http.controllers.notification_controller import websocket_notifications
 from app.infra.http.middleware import HTTPRequestAuditMiddleware
 from app.infra.http.routes import app_routes
 from app.infra.utils.clear_terminal import clear_terminal
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy import create_engine
 
 app = FastAPI(
     docs_url="/api/user/docs",

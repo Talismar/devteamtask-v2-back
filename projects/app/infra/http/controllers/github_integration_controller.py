@@ -2,14 +2,13 @@ import hashlib
 import hmac
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, Request
-
 from app.application.use_cases import (
     ProjectGetByIdUseCase,
     WebhookTaskUpdateStatusUseCase,
 )
 from app.infra.factories import make_project_get_by_id, make_webhook_task_update_status
 from app.main.configuration.local import settings
+from fastapi import Depends, HTTPException, Request
 
 
 async def github_webhooks(
@@ -48,7 +47,8 @@ async def github_webhooks(
                 commit_message = commit["message"]
                 webhook_use_case.execute(commit_message, project_id)  # type: ignore
 
-    except Exception:
+    except Exception as exp:
+        print(exp)
         raise HTTPException(status_code=400)
 
     return None

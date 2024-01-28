@@ -2,14 +2,13 @@ from json import loads
 from os import mkdir
 from pathlib import Path
 
+from app.infra.database.base_model import BaseModel
+from app.infra.database.configuration import Session, engine
+from app.infra.database.models import *
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine
-
-from app.infra.database.base_model import BaseModel
-from app.infra.database.configuration import Session, engine
-from app.infra.database.models import *
 
 from .configuration.local import settings
 from .lifespan import lifespan

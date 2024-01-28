@@ -17,7 +17,7 @@ class WebhookTaskUpdateStatusUseCase:
 
     def execute(self, commit_message: str, project_id: UUID):
         task_id = self.get_task_id_by_commit_message(commit_message)
-
+        print(commit_message, task_id)
         if isinstance(task_id, str) and task_id.isnumeric():
             task_id = int(task_id)
             try:

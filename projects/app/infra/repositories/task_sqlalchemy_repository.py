@@ -1,13 +1,12 @@
 from datetime import datetime, timedelta
 from uuid import UUID
 
+from app.application.repositories import TaskRepository
+from app.domain.errors import ResourceNotFoundException
+from app.infra.database.models import ProjectModel, StatusModel, TagModel, TaskModel
 from sqlalchemy import func, text, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, load_only
-
-from app.application.repositories import TaskRepository
-from app.domain.errors import ResourceNotFoundException
-from app.infra.database.models import StatusModel, TagModel, TaskModel
 
 from .mapper.task_sqlalchemy_mapper import TaskSqlalchemyMapper
 
@@ -87,11 +86,20 @@ class TaskSqlalchemyRepository(TaskRepository):
 
         return task_instance
 
-    def update_status_by_id_and_project_id(self, task_id, project_id, status):
+    def update_status_by_id_and_project_id(self, task_id, project_id, status_name):
         task_instance = self.get_by_id(task_id)
 
         if task_instance is not None and project_id == task_instance.project_id:
-            status_instance = self.get_status_by_name(status)
+            project_instance = (
+                self.__session.query(ProjectModel).filter_by(id=project_id).first()
+            )
+
+            status_instance = None
+
+            for item in project_instance.status:
+                if item.name == status_name:
+                    status_instance = item
+
             task_instance.status = status_instance
 
             self.__session.commit()
